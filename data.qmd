@@ -1,0 +1,160 @@
+---
+title: "Data & Outputs"
+toc: true
+---
+
+The EUR_DATA collection provides structured, analysis-ready datasets on European
+political institutions. Each dataset is released with reproducible pipeline code,
+a column-level codebook, and a test suite. All data is licensed
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
+
+## Commission Formation (2024-2029)
+
+The formation of the second von der Leyen Commission, from the June 2024
+European Parliament elections to the adoption of the 2025 Commission Work
+Programme. Six interlinked tables, all keyed on a three-letter `commissioner_id`.
+
+| Table | Rows | What it captures |
+|-------|-----:|------------------|
+| `commissioners` | 27 | The College: portfolio, party, gender, and DG assignments |
+| `mission_letter_commitments` | 721 | Policy commitments from 26 presidential mission letters |
+| `hearings` | 26 | Confirmation hearing dates, committees, and outcomes |
+| `investiture_vote` | 688 | MEP-level roll-call votes on the College (27 Nov 2024) |
+| `work_programme_items` | 113 | Items from the four annexes of the CWP 2025 |
+| `formation_timeline` | 13 | Key institutional milestones (250-day span) |
+
+**Downloads:**
+[commissioners](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/commissioners.csv) ·
+[commitments](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/mission_letter_commitments.csv) ·
+[hearings](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/hearings.csv) ·
+[investiture_vote](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/investiture_vote.csv) ·
+[work_programme_items](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/work_programme_items.csv) ·
+[formation_timeline](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/data/output/formation_timeline.csv)
+
+Every table is also available as XLSX in the same
+[folder](https://github.com/Connected-Politics-Lab/EUR_DATA/tree/main/datasets/commission_formation/data/output).
+
+**Documentation:**
+[Dataset README](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/README.md) ·
+[Codebook](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/CODEBOOK.md)
+
+::: {.callout-note appearance="simple"}
+A citable DOI for this dataset is minted via Zenodo on each release. The DOI
+will appear here once the first release is published.
+:::
+
+### Explore the data
+
+The charts below are interactive: hover for exact values.
+
+```{ojs}
+//| echo: false
+voteData = FileAttachment("assets/charts/vote_by_group.csv").csv({typed: true})
+commitData = FileAttachment("assets/charts/commitments_by_commissioner.csv").csv({typed: true})
+annexData = FileAttachment("assets/charts/wp_by_annex.csv").csv({typed: true})
+timelineData = FileAttachment("assets/charts/timeline.csv").csv({typed: true})
+```
+
+#### Investiture vote by EP political group
+
+The Parliament approved the College by 370 votes to 282, with 36 abstentions.
+The chart shows how each political group split.
+
+```{ojs}
+//| echo: false
+Plot.plot({
+  marginLeft: 70,
+  marginBottom: 40,
+  x: {label: "MEPs", grid: true},
+  y: {label: null, domain: [...new Set(voteData.map(d => d.ep_party_group))]},
+  color: {domain: ["for", "against", "abstain"], range: ["#2c7fb8", "#d73027", "#969696"], legend: true},
+  marks: [
+    Plot.barX(voteData, {
+      y: "ep_party_group",
+      x: "count",
+      fill: "vote",
+      order: ["for", "against", "abstain"],
+      tip: true
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+#### Mission-letter commitments per commissioner
+
+721 commitments were extracted from the 26 mission letters: 440 high-confidence
+(from bullet-point lists) and 281 medium-confidence (from directive sentences and
+legislative references).
+
+```{ojs}
+//| echo: false
+Plot.plot({
+  marginLeft: 150,
+  marginBottom: 40,
+  width: 800,
+  height: 560,
+  x: {label: "Commitments", grid: true},
+  y: {label: null, sort: {y: "x", reduce: "sum", reverse: true}},
+  color: {domain: ["high", "medium"], range: ["#1a9850", "#a6d96a"], legend: true},
+  marks: [
+    Plot.barX(commitData, {
+      y: "commissioner_name",
+      x: "count",
+      fill: "confidence",
+      order: ["high", "medium"],
+      tip: true
+    }),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+#### Commission Work Programme 2025 by annex
+
+113 items across the four annexes of the work programme adopted on 11 February 2025.
+
+```{ojs}
+//| echo: false
+Plot.plot({
+  marginLeft: 180,
+  marginBottom: 40,
+  x: {label: "Items", grid: true},
+  y: {label: null, domain: annexData.map(d => d.label)},
+  marks: [
+    Plot.barX(annexData, {y: "label", x: "count", fill: "#542788", tip: true}),
+    Plot.text(annexData, {y: "label", x: "count", text: "count", dx: 12, fontWeight: "bold"}),
+    Plot.ruleX([0])
+  ]
+})
+```
+
+#### Formation timeline
+
+From the European Parliament elections (6 June 2024) to the adoption of the
+Commission Work Programme (11 February 2025).
+
+```{ojs}
+//| echo: false
+Plot.plot({
+  marginLeft: 40,
+  marginRight: 20,
+  marginBottom: 50,
+  height: 200,
+  x: {label: null, type: "utc", grid: true},
+  color: {legend: true, label: "Event type"},
+  marks: [
+    Plot.ruleY([0]),
+    Plot.dot(timelineData, {
+      x: d => new Date(d.date),
+      y: 0,
+      fill: "event_type",
+      r: 6,
+      tip: {format: {x: true, y: false}},
+      channels: {event: "event_name", institution: "institution"}
+    })
+  ]
+})
+```
+
+*More datasets will be added as the project develops.*

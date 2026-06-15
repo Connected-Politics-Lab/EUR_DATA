@@ -1,0 +1,50 @@
+---
+title: "Teaching & Open Educational Resources"
+toc: true
+---
+
+EUR_DATA is built around two modules at University College Dublin that integrate
+the study of EU politics with hands-on data analytics. The teaching materials
+below are released as **open educational resources** under
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/): you are free to reuse
+and adapt them with attribution.
+
+## Modules
+
+### INRL20160 — The Politics of the EU (undergraduate)
+
+An introduction to the institutions, actors, and policy processes of the
+European Union.
+
+| Year | Syllabus |
+|------|----------|
+| 2025-2026 | [PDF](oer/syllabi/INRL20160_Syllabus_2526.pdf) |
+| 2024-2025 | [PDF](oer/syllabi/INRL20160_Syllabus_2425.pdf) |
+| 2023-2024 | [PDF](oer/syllabi/INRL20160_Syllabus_2324.pdf) |
+
+### POL40970 — The Politics of European Governance (postgraduate)
+
+A graduate module on European governance, combining institutional analysis with
+quantitative methods and project-based work on real EU data.
+
+| Year | Syllabus |
+|------|----------|
+| 2025-2026 | [PDF](oer/syllabi/POL40970_202526.pdf) |
+| 2024-2025 | [PDF](oer/syllabi/POL40970_202425.pdf) |
+| 2023-2024 | [PDF](oer/syllabi/POL40970_202324.pdf) |
+
+## Lecture slides
+
+Slide decks from the modules will be published here. *Coming soon.*
+
+## Assessment materials
+
+Anonymised project briefs and assessment templates, suitable for reuse in other
+courses, will be published here. *Coming soon.*
+
+## Working with the data in teaching
+
+The [Commission Formation dataset](data.qmd) is designed for classroom use. The
+worked example notebook in the repository shows how to load and explore the
+tables:
+[exploration.ipynb](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/commission_formation/notebooks/exploration.ipynb).

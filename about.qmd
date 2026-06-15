@@ -1,0 +1,46 @@
+---
+title: "About"
+---
+
+## About EUR_DATA
+
+EUR_DATA (*Integrating EU studies and Data Analytics using a Project-based
+Learning Approach*) is an **Erasmus+ Jean Monnet Module** based at University
+College Dublin and maintained by the
+[Connected Politics Lab](https://github.com/Connected-Politics-Lab). It is
+coordinated by [James Cross](https://orcid.org/0000-0001-8042-1099).
+
+The module integrates the study of European Union politics with hands-on data
+analytics. Students work with real institutional data to build practical
+quantitative skills, and the structured datasets they help produce are released
+here as open research resources.
+
+This website hosts three kinds of output:
+
+- **[Data](data.qmd)** — open, analysis-ready datasets on European political
+  institutions, each with a codebook, reproducible pipeline code, and tests.
+- **[Teaching](oer.qmd)** — open educational resources, including module syllabi,
+  slides, and assessment materials.
+- **Code** — the full pipelines that build each dataset, on
+  [GitHub](https://github.com/Connected-Politics-Lab/EUR_DATA).
+
+## Licensing and citation
+
+Data and educational resources are released under
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); code under the
+[Apache License 2.0](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/LICENSE).
+Please cite EUR_DATA if you use it; see the
+[CITATION file](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/CITATION.cff).
+
+## Contact
+
+For questions, corrections, or feature requests, please open an issue on the
+[GitHub repository](https://github.com/Connected-Politics-Lab/EUR_DATA/issues).
+
+## Acknowledgement
+
+Co-funded by the European Union under the Erasmus+ Programme, Jean Monnet
+Actions (grant 101127178). Views and opinions expressed are those of the
+author(s) only and do not necessarily reflect those of the European Union or the
+European Education and Culture Executive Agency (EACEA). Neither the European
+Union nor EACEA can be held responsible for them.

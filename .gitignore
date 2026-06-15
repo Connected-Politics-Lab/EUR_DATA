@@ -1,0 +1,22 @@
+# Quarto
+.quarto/
+_site/
+/.quarto/
+**/*.quarto_ipynb
+
+# macOS
+.DS_Store
+
+# Python / pipeline
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Dataset pipeline: exclude raw sources, caches, logs, and intermediate files.
+# Published outputs in datasets/**/data/output/ are tracked.
+datasets/**/data/raw/
+datasets/**/data/processed/
+datasets/**/logs/
+
+# NOTE: docs/ is the rendered site served by GitHub Pages — do NOT ignore it.

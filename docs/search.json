@@ -1,0 +1,100 @@
+[
+  {
+    "objectID": "oer.html",
+    "href": "oer.html",
+    "title": "Teaching & Open Educational Resources",
+    "section": "",
+    "text": "EUR_DATA is built around two modules at University College Dublin that integrate the study of EU politics with hands-on data analytics. The teaching materials below are released as open educational resources under CC-BY-4.0: you are free to reuse and adapt them with attribution."
+  },
+  {
+    "objectID": "oer.html#modules",
+    "href": "oer.html#modules",
+    "title": "Teaching & Open Educational Resources",
+    "section": "Modules",
+    "text": "Modules\n\nINRL20160 — The Politics of the EU (undergraduate)\nAn introduction to the institutions, actors, and policy processes of the European Union.\n\n\n\nYear\nSyllabus\n\n\n\n\n2025-2026\nPDF\n\n\n2024-2025\nPDF\n\n\n2023-2024\nPDF\n\n\n\n\n\nPOL40970 — The Politics of European Governance (postgraduate)\nA graduate module on European governance, combining institutional analysis with quantitative methods and project-based work on real EU data.\n\n\n\nYear\nSyllabus\n\n\n\n\n2025-2026\nPDF\n\n\n2024-2025\nPDF\n\n\n2023-2024\nPDF"
+  },
+  {
+    "objectID": "oer.html#lecture-slides",
+    "href": "oer.html#lecture-slides",
+    "title": "Teaching & Open Educational Resources",
+    "section": "Lecture slides",
+    "text": "Lecture slides\nSlide decks from the modules will be published here. Coming soon."
+  },
+  {
+    "objectID": "oer.html#assessment-materials",
+    "href": "oer.html#assessment-materials",
+    "title": "Teaching & Open Educational Resources",
+    "section": "Assessment materials",
+    "text": "Assessment materials\nAnonymised project briefs and assessment templates, suitable for reuse in other courses, will be published here. Coming soon."
+  },
+  {
+    "objectID": "oer.html#working-with-the-data-in-teaching",
+    "href": "oer.html#working-with-the-data-in-teaching",
+    "title": "Teaching & Open Educational Resources",
+    "section": "Working with the data in teaching",
+    "text": "Working with the data in teaching\nThe Commission Formation dataset is designed for classroom use. The worked example notebook in the repository shows how to load and explore the tables: exploration.ipynb."
+  },
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data & Outputs",
+    "section": "",
+    "text": "The EUR_DATA collection provides structured, analysis-ready datasets on European political institutions. Each dataset is released with reproducible pipeline code, a column-level codebook, and a test suite. All data is licensed CC-BY-4.0."
+  },
+  {
+    "objectID": "data.html#commission-formation-2024-2029",
+    "href": "data.html#commission-formation-2024-2029",
+    "title": "Data & Outputs",
+    "section": "Commission Formation (2024-2029)",
+    "text": "Commission Formation (2024-2029)\nThe formation of the second von der Leyen Commission, from the June 2024 European Parliament elections to the adoption of the 2025 Commission Work Programme. Six interlinked tables, all keyed on a three-letter commissioner_id.\n\n\n\n\n\n\n\n\nTable\nRows\nWhat it captures\n\n\n\n\ncommissioners\n27\nThe College: portfolio, party, gender, and DG assignments\n\n\nmission_letter_commitments\n721\nPolicy commitments from 26 presidential mission letters\n\n\nhearings\n26\nConfirmation hearing dates, committees, and outcomes\n\n\ninvestiture_vote\n688\nMEP-level roll-call votes on the College (27 Nov 2024)\n\n\nwork_programme_items\n113\nItems from the four annexes of the CWP 2025\n\n\nformation_timeline\n13\nKey institutional milestones (250-day span)\n\n\n\nDownloads: commissioners · commitments · hearings · investiture_vote · work_programme_items · formation_timeline\nEvery table is also available as XLSX in the same folder.\nDocumentation: Dataset README · Codebook\n\n\n\n\n\n\nA citable DOI for this dataset is minted via Zenodo on each release. The DOI will appear here once the first release is published.\n\n\n\n\nExplore the data\nThe charts below are interactive: hover for exact values.\n\nvoteData = FileAttachment(\"assets/charts/vote_by_group.csv\").csv({typed: true})\ncommitData = FileAttachment(\"assets/charts/commitments_by_commissioner.csv\").csv({typed: true})\nannexData = FileAttachment(\"assets/charts/wp_by_annex.csv\").csv({typed: true})\ntimelineData = FileAttachment(\"assets/charts/timeline.csv\").csv({typed: true})\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInvestiture vote by EP political group\nThe Parliament approved the College by 370 votes to 282, with 36 abstentions. The chart shows how each political group split.\n\nPlot.plot({\n  marginLeft: 70,\n  marginBottom: 40,\n  x: {label: \"MEPs\", grid: true},\n  y: {label: null, domain: [...new Set(voteData.map(d =&gt; d.ep_party_group))]},\n  color: {domain: [\"for\", \"against\", \"abstain\"], range: [\"#2c7fb8\", \"#d73027\", \"#969696\"], legend: true},\n  marks: [\n    Plot.barX(voteData, {\n      y: \"ep_party_group\",\n      x: \"count\",\n      fill: \"vote\",\n      order: [\"for\", \"against\", \"abstain\"],\n      tip: true\n    }),\n    Plot.ruleX([0])\n  ]\n})\n\n\n\n\n\n\n\n\nMission-letter commitments per commissioner\n721 commitments were extracted from the 26 mission letters: 440 high-confidence (from bullet-point lists) and 281 medium-confidence (from directive sentences and legislative references).\n\nPlot.plot({\n  marginLeft: 150,\n  marginBottom: 40,\n  width: 800,\n  height: 560,\n  x: {label: \"Commitments\", grid: true},\n  y: {label: null, sort: {y: \"x\", reduce: \"sum\", reverse: true}},\n  color: {domain: [\"high\", \"medium\"], range: [\"#1a9850\", \"#a6d96a\"], legend: true},\n  marks: [\n    Plot.barX(commitData, {\n      y: \"commissioner_name\",\n      x: \"count\",\n      fill: \"confidence\",\n      order: [\"high\", \"medium\"],\n      tip: true\n    }),\n    Plot.ruleX([0])\n  ]\n})\n\n\n\n\n\n\n\n\nCommission Work Programme 2025 by annex\n113 items across the four annexes of the work programme adopted on 11 February 2025.\n\nPlot.plot({\n  marginLeft: 180,\n  marginBottom: 40,\n  x: {label: \"Items\", grid: true},\n  y: {label: null, domain: annexData.map(d =&gt; d.label)},\n  marks: [\n    Plot.barX(annexData, {y: \"label\", x: \"count\", fill: \"#542788\", tip: true}),\n    Plot.text(annexData, {y: \"label\", x: \"count\", text: \"count\", dx: 12, fontWeight: \"bold\"}),\n    Plot.ruleX([0])\n  ]\n})\n\n\n\n\n\n\n\n\nFormation timeline\nFrom the European Parliament elections (6 June 2024) to the adoption of the Commission Work Programme (11 February 2025).\n\nPlot.plot({\n  marginLeft: 40,\n  marginRight: 20,\n  marginBottom: 50,\n  height: 200,\n  x: {label: null, type: \"utc\", grid: true},\n  color: {legend: true, label: \"Event type\"},\n  marks: [\n    Plot.ruleY([0]),\n    Plot.dot(timelineData, {\n      x: d =&gt; new Date(d.date),\n      y: 0,\n      fill: \"event_type\",\n      r: 6,\n      tip: {format: {x: true, y: false}},\n      channels: {event: \"event_name\", institution: \"institution\"}\n    })\n  ]\n})\n\n\n\n\n\n\nMore datasets will be added as the project develops."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "EUR_DATA (Integrating EU studies and Data Analytics using a Project-based Learning Approach) is an Erasmus+ Jean Monnet Module based at University College Dublin and maintained by the Connected Politics Lab. It is coordinated by James Cross.\nThe module integrates the study of European Union politics with hands-on data analytics. Students work with real institutional data to build practical quantitative skills, and the structured datasets they help produce are released here as open research resources.\nThis website hosts three kinds of output:\n\nData — open, analysis-ready datasets on European political institutions, each with a codebook, reproducible pipeline code, and tests.\nTeaching — open educational resources, including module syllabi, slides, and assessment materials.\nCode — the full pipelines that build each dataset, on GitHub."
+  },
+  {
+    "objectID": "about.html#about-eur_data",
+    "href": "about.html#about-eur_data",
+    "title": "About",
+    "section": "",
+    "text": "EUR_DATA (Integrating EU studies and Data Analytics using a Project-based Learning Approach) is an Erasmus+ Jean Monnet Module based at University College Dublin and maintained by the Connected Politics Lab. It is coordinated by James Cross.\nThe module integrates the study of European Union politics with hands-on data analytics. Students work with real institutional data to build practical quantitative skills, and the structured datasets they help produce are released here as open research resources.\nThis website hosts three kinds of output:\n\nData — open, analysis-ready datasets on European political institutions, each with a codebook, reproducible pipeline code, and tests.\nTeaching — open educational resources, including module syllabi, slides, and assessment materials.\nCode — the full pipelines that build each dataset, on GitHub."
+  },
+  {
+    "objectID": "about.html#licensing-and-citation",
+    "href": "about.html#licensing-and-citation",
+    "title": "About",
+    "section": "Licensing and citation",
+    "text": "Licensing and citation\nData and educational resources are released under CC-BY-4.0; code under the Apache License 2.0. Please cite EUR_DATA if you use it; see the CITATION file."
+  },
+  {
+    "objectID": "about.html#contact",
+    "href": "about.html#contact",
+    "title": "About",
+    "section": "Contact",
+    "text": "Contact\nFor questions, corrections, or feature requests, please open an issue on the GitHub repository."
+  },
+  {
+    "objectID": "about.html#acknowledgement",
+    "href": "about.html#acknowledgement",
+    "title": "About",
+    "section": "Acknowledgement",
+    "text": "Acknowledgement\nCo-funded by the European Union under the Erasmus+ Programme, Jean Monnet Actions (grant 101127178). Views and opinions expressed are those of the author(s) only and do not necessarily reflect those of the European Union or the European Education and Culture Executive Agency (EACEA). Neither the European Union nor EACEA can be held responsible for them."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "EUR_DATA",
+    "section": "",
+    "text": "EUR_DATA provides structured, analysis-ready datasets, reproducible code, and open educational resources on European political institutions. It is an Erasmus+ Jean Monnet Module based at University College Dublin and maintained by the Connected Politics Lab, integrating the study of EU politics with hands-on data analytics.\n\n\n\nCommission Formation (2024-2029) — the formation of the second von der Leyen Commission: the College, mission-letter commitments, confirmation hearings, the investiture vote, the 2025 Work Programme, and a formation timeline. Six interlinked tables, 1,588 rows in total.\n\nMore datasets will be added as the project develops.\n\n\n\n\nData — dataset documentation, downloads, and interactive visualisations.\nTeaching — open syllabi, slides, and assessment materials.\nAbout — the project, its funding, and how to cite it.\n\n\n\n\nData and educational resources are released under CC-BY-4.0; code under the Apache License 2.0."
+  },
+  {
+    "objectID": "index.html#open-data-on-european-politics",
+    "href": "index.html#open-data-on-european-politics",
+    "title": "EUR_DATA",
+    "section": "",
+    "text": "EUR_DATA provides structured, analysis-ready datasets, reproducible code, and open educational resources on European political institutions. It is an Erasmus+ Jean Monnet Module based at University College Dublin and maintained by the Connected Politics Lab, integrating the study of EU politics with hands-on data analytics.\n\n\n\nCommission Formation (2024-2029) — the formation of the second von der Leyen Commission: the College, mission-letter commitments, confirmation hearings, the investiture vote, the 2025 Work Programme, and a formation timeline. Six interlinked tables, 1,588 rows in total.\n\nMore datasets will be added as the project develops.\n\n\n\n\nData — dataset documentation, downloads, and interactive visualisations.\nTeaching — open syllabi, slides, and assessment materials.\nAbout — the project, its funding, and how to cite it.\n\n\n\n\nData and educational resources are released under CC-BY-4.0; code under the Apache License 2.0."
+  }
+]

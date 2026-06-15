@@ -1,0 +1,35 @@
+---
+title: "EUR_DATA"
+toc: false
+---
+
+## Open data on European politics
+
+EUR_DATA provides structured, analysis-ready datasets, reproducible code, and
+open educational resources on European political institutions. It is an
+[Erasmus+ Jean Monnet Module](about.qmd) based at University College Dublin and
+maintained by the
+[Connected Politics Lab](https://github.com/Connected-Politics-Lab), integrating
+the study of EU politics with hands-on data analytics.
+
+### Available datasets
+
+- **[Commission Formation (2024-2029)](data.qmd)** — the formation of the second
+  von der Leyen Commission: the College, mission-letter commitments, confirmation
+  hearings, the investiture vote, the 2025 Work Programme, and a formation
+  timeline. Six interlinked tables, 1,588 rows in total.
+
+More datasets will be added as the project develops.
+
+### Explore
+
+- **[Data](data.qmd)** — dataset documentation, downloads, and interactive
+  visualisations.
+- **[Teaching](oer.qmd)** — open syllabi, slides, and assessment materials.
+- **[About](about.qmd)** — the project, its funding, and how to cite it.
+
+### Licensing
+
+Data and educational resources are released under
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); code under the
+[Apache License 2.0](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/LICENSE).

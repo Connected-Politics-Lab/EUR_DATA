@@ -1,0 +1,14 @@
+﻿event_id,date,event_name,event_description,event_type,institution,document_url
+T01,2024-06-06,European Parliament elections begin,Elections to the 10th European Parliament held across EU member states (6-9 June 2024).,election,European Parliament,
+T02,2024-06-09,European Parliament elections conclude,Final day of voting. EPP wins largest share; von der Leyen positioned for second term.,election,European Parliament,
+T03,2024-06-27,European Council nominates von der Leyen,European Council proposes Ursula von der Leyen as Commission President candidate by qualified majority.,nomination,European Council,
+T04,2024-07-16,EP constitutive session opens,10th European Parliament holds constitutive session in Strasbourg. Roberta Metsola re-elected President.,institutional,European Parliament,
+T05,2024-07-18,EP elects von der Leyen as Commission President,European Parliament elects Ursula von der Leyen for a second term as Commission President (401 votes in favour).,vote,European Parliament,
+T06,2024-09-17,Commissioners-designate announced,"Council, in agreement with President von der Leyen, adopts the list of Commissioners-designate.",nomination,Council of the EU,
+T07,2024-09-17,Mission letters published,President von der Leyen sends mission letters to each Commissioner-designate outlining portfolio responsibilities.,document,European Commission,
+T08,2024-11-04,EP confirmation hearings begin,European Parliament committees begin confirmation hearings of Commissioners-designate (4-12 November 2024).,hearing,European Parliament,
+T09,2024-11-12,Final confirmation hearings,"Last round of Commissioner-designate hearings held, including for Ribera and Fitto (controversial EVPs).",hearing,European Parliament,
+T10,2024-11-21,Conference of Presidents endorses full College,EP Conference of Presidents confirms all Commissioners-designate have passed their hearings.,institutional,European Parliament,
+T11,2024-11-27,EP investiture vote,"European Parliament approves the von der Leyen II Commission by roll-call vote: 370 for, 282 against, 36 abstentions.",vote,European Parliament,
+T12,2024-12-01,Von der Leyen II Commission takes office,The 2024-2029 European Commission officially takes office.,institutional,European Commission,
+T13,2025-02-11,Commission Work Programme 2025 adopted,"European Commission adopts the 2025 Commission Work Programme, outlining legislative and policy priorities.",document,European Commission,https://commission.europa.eu/document/download/c29e1593-5a07-4e88-b75e-3f39da3c0e1c_en?filename=COM_2025_45_1_EN.pdf
