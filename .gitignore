@@ -7,6 +7,16 @@ _site/
 # macOS
 .DS_Store
 
+# Secrets / environment (never commit API keys)
+.env
+.env.*
+*.env
+
+# Claude Code local config (settings.local.json may hold secrets)
+.claude/
+.claude.json
+.mcp.json
+
 # Python / pipeline
 __pycache__/
 *.pyc
@@ -16,7 +26,12 @@ __pycache__/
 # Dataset pipeline: exclude raw sources, caches, logs, and intermediate files.
 # Published outputs in datasets/**/data/output/ are tracked.
 datasets/**/data/raw/
-datasets/**/data/processed/
+datasets/**/data/processed/*
 datasets/**/logs/
+
+# ...but DO ship the LLM classification cache, so the LLM-assigned commitment
+# types reproduce offline without an API key.
+!datasets/**/data/processed/
+!datasets/**/data/processed/llm_classification_cache.json
 
 # NOTE: docs/ is the rendered site served by GitHub Pages — do NOT ignore it.

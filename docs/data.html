@@ -170,6 +170,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#explore-the-data" id="toc-explore-the-data" class="nav-link" data-scroll-target="#explore-the-data">Explore the data</a></li>
   </ul></li>
+  <li><a href="#euandi-2024-european-parliament-election" id="toc-euandi-2024-european-parliament-election" class="nav-link" data-scroll-target="#euandi-2024-european-parliament-election">euandi 2024 (European Parliament election)</a></li>
+  <li><a href="#commission-agenda-implementation" id="toc-commission-agenda-implementation" class="nav-link" data-scroll-target="#commission-agenda-implementation">Commission Agenda Implementation</a></li>
   </ul>
 </nav>
     </div>
@@ -195,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The EUR_DATA collection provides structured, analysis-ready datasets on European political institutions. Each dataset is released with reproducible pipeline code, a column-level codebook, and a test suite. All data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.</p>
+<p>The EUR_DATA collection provides structured, analysis-ready datasets on European political institutions. Each dataset is released with reproducible pipeline code, a column-level codebook, and a test suite. All data is licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a> (the euandi dataset additionally requires crediting its original authors — see that section).</p>
 <section id="commission-formation-2024-2029" class="level2">
 <h2 class="anchored" data-anchor-id="commission-formation-2024-2029">Commission Formation (2024-2029)</h2>
 <p>The formation of the second von der Leyen Commission, from the June 2024 European Parliament elections to the adoption of the 2025 Commission Work Programme. Six interlinked tables, all keyed on a three-letter <code>commissioner_id</code>.</p>
@@ -235,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td><code>work_programme_items</code></td>
-<td style="text-align: right;">113</td>
+<td style="text-align: right;">127</td>
 <td>Items from the four annexes of the CWP 2025</td>
 </tr>
 <tr class="even">
@@ -262,10 +264,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="explore-the-data">Explore the data</h3>
 <p>The charts below are interactive: hover for exact values.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="52" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 51;"><span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>voteData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/vote_by_group.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>commitData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/commitments_by_commissioner.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>annexData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/wp_by_annex.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>timelineData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/timeline.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="53" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 52;"><span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>voteData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/vote_by_group.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>commitData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/commitments_by_commissioner.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>annexData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/wp_by_annex.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>timelineData <span class="op">=</span> <span class="fu">FileAttachment</span>(<span class="st">"assets/charts/timeline.csv"</span>)<span class="op">.</span><span class="fu">csv</span>({<span class="dt">typed</span><span class="op">:</span> <span class="kw">true</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -299,23 +301,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="investiture-vote-by-ep-political-group">Investiture vote by EP political group</h4>
 <p>The Parliament approved the College by 370 votes to 282, with 36 abstentions. The chart shows how each political group split.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="64" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 63;"><span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">70</span><span class="op">,</span></span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"MEPs"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="op">...</span><span class="kw">new</span> <span class="bu">Set</span>(voteData<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">ep_party_group</span>))]}<span class="op">,</span></span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="st">"for"</span><span class="op">,</span> <span class="st">"against"</span><span class="op">,</span> <span class="st">"abstain"</span>]<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="st">"#2c7fb8"</span><span class="op">,</span> <span class="st">"#d73027"</span><span class="op">,</span> <span class="st">"#969696"</span>]<span class="op">,</span> <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(voteData<span class="op">,</span> {</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"ep_party_group"</span><span class="op">,</span></span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span></span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"vote"</span><span class="op">,</span></span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>      <span class="dt">order</span><span class="op">:</span> [<span class="st">"for"</span><span class="op">,</span> <span class="st">"against"</span><span class="op">,</span> <span class="st">"abstain"</span>]<span class="op">,</span></span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="65" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 64;"><span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">70</span><span class="op">,</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"MEPs"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="op">...</span><span class="kw">new</span> <span class="bu">Set</span>(voteData<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">ep_party_group</span>))]}<span class="op">,</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="st">"for"</span><span class="op">,</span> <span class="st">"against"</span><span class="op">,</span> <span class="st">"abstain"</span>]<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="st">"#2c7fb8"</span><span class="op">,</span> <span class="st">"#d73027"</span><span class="op">,</span> <span class="st">"#969696"</span>]<span class="op">,</span> <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(voteData<span class="op">,</span> {</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"ep_party_group"</span><span class="op">,</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"vote"</span><span class="op">,</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>      <span class="dt">order</span><span class="op">:</span> [<span class="st">"for"</span><span class="op">,</span> <span class="st">"against"</span><span class="op">,</span> <span class="st">"abstain"</span>]<span class="op">,</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-2" data-nodetype="expression">
 
@@ -325,27 +327,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="mission-letter-commitments-per-commissioner" class="level4">
 <h4 class="anchored" data-anchor-id="mission-letter-commitments-per-commissioner">Mission-letter commitments per commissioner</h4>
-<p>721 commitments were extracted from the 26 mission letters: 440 high-confidence (from bullet-point lists) and 281 medium-confidence (from directive sentences and legislative references).</p>
+<p>1057 commitments were extracted from the 26 mission letters: 440 high-confidence (from bullet-point lists) and 617 medium-confidence (from directive sentences and legislative references).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="91" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 90;"><span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">150</span><span class="op">,</span></span>
-<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">800</span><span class="op">,</span></span>
-<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">560</span><span class="op">,</span></span>
-<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Commitments"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">sort</span><span class="op">:</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">reduce</span><span class="op">:</span> <span class="st">"sum"</span><span class="op">,</span> <span class="dt">reverse</span><span class="op">:</span> <span class="kw">true</span>}}<span class="op">,</span></span>
-<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="st">"high"</span><span class="op">,</span> <span class="st">"medium"</span>]<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="st">"#1a9850"</span><span class="op">,</span> <span class="st">"#a6d96a"</span>]<span class="op">,</span> <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(commitData<span class="op">,</span> {</span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"commissioner_name"</span><span class="op">,</span></span>
-<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span></span>
-<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"confidence"</span><span class="op">,</span></span>
-<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>      <span class="dt">order</span><span class="op">:</span> [<span class="st">"high"</span><span class="op">,</span> <span class="st">"medium"</span>]<span class="op">,</span></span>
-<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span></span>
-<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
-<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
-<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="92" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 91;"><span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">150</span><span class="op">,</span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="dv">800</span><span class="op">,</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">560</span><span class="op">,</span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Commitments"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">sort</span><span class="op">:</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"x"</span><span class="op">,</span> <span class="dt">reduce</span><span class="op">:</span> <span class="st">"sum"</span><span class="op">,</span> <span class="dt">reverse</span><span class="op">:</span> <span class="kw">true</span>}}<span class="op">,</span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="st">"high"</span><span class="op">,</span> <span class="st">"medium"</span>]<span class="op">,</span> <span class="dt">range</span><span class="op">:</span> [<span class="st">"#1a9850"</span><span class="op">,</span> <span class="st">"#a6d96a"</span>]<span class="op">,</span> <span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(commitData<span class="op">,</span> {</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"commissioner_name"</span><span class="op">,</span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"confidence"</span><span class="op">,</span></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>      <span class="dt">order</span><span class="op">:</span> [<span class="st">"high"</span><span class="op">,</span> <span class="st">"medium"</span>]<span class="op">,</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="expression">
 
@@ -355,19 +357,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="commission-work-programme-2025-by-annex" class="level4">
 <h4 class="anchored" data-anchor-id="commission-work-programme-2025-by-annex">Commission Work Programme 2025 by annex</h4>
-<p>113 items across the four annexes of the work programme adopted on 11 February 2025.</p>
+<p>127 items across the four annexes of the work programme adopted on 11 February 2025.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="118" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 117;"><span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">180</span><span class="op">,</span></span>
-<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> annexData<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">label</span>)}<span class="op">,</span></span>
-<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(annexData<span class="op">,</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#542788"</span><span class="op">,</span> <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span>})<span class="op">,</span></span>
-<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(annexData<span class="op">,</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">dx</span><span class="op">:</span> <span class="dv">12</span><span class="op">,</span> <span class="dt">fontWeight</span><span class="op">:</span> <span class="st">"bold"</span>})<span class="op">,</span></span>
-<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
-<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="119" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 118;"><span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">180</span><span class="op">,</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Items"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> annexData<span class="op">.</span><span class="fu">map</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">label</span>)}<span class="op">,</span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">barX</span>(annexData<span class="op">,</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"#542788"</span><span class="op">,</span> <span class="dt">tip</span><span class="op">:</span> <span class="kw">true</span>})<span class="op">,</span></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(annexData<span class="op">,</span> {<span class="dt">y</span><span class="op">:</span> <span class="st">"label"</span><span class="op">,</span> <span class="dt">x</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">text</span><span class="op">:</span> <span class="st">"count"</span><span class="op">,</span> <span class="dt">dx</span><span class="op">:</span> <span class="dv">12</span><span class="op">,</span> <span class="dt">fontWeight</span><span class="op">:</span> <span class="st">"bold"</span>})<span class="op">,</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])</span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-4" data-nodetype="expression">
 
@@ -379,36 +381,176 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="formation-timeline">Formation timeline</h4>
 <p>From the European Parliament elections (6 June 2024) to the adoption of the Commission Work Programme (11 February 2025).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="138" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 137;"><span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">50</span><span class="op">,</span></span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">200</span><span class="op">,</span></span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"utc"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Event type"</span>}<span class="op">,</span></span>
-<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(timelineData<span class="op">,</span> {</span>
-<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="bu">Date</span>(d<span class="op">.</span><span class="at">date</span>)<span class="op">,</span></span>
-<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
-<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"event_type"</span><span class="op">,</span></span>
-<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span></span>
-<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> {<span class="dt">format</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="kw">false</span>}}<span class="op">,</span></span>
-<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>      <span class="dt">channels</span><span class="op">:</span> {<span class="dt">event</span><span class="op">:</span> <span class="st">"event_name"</span><span class="op">,</span> <span class="dt">institution</span><span class="op">:</span> <span class="st">"institution"</span>}</span>
-<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="139" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 138;"><span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginLeft</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">20</span><span class="op">,</span></span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginBottom</span><span class="op">:</span> <span class="dv">50</span><span class="op">,</span></span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="dv">200</span><span class="op">,</span></span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> {<span class="dt">label</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"utc"</span><span class="op">,</span> <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span>}<span class="op">,</span></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>  <span class="dt">color</span><span class="op">:</span> {<span class="dt">legend</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"Event type"</span>}<span class="op">,</span></span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(timelineData<span class="op">,</span> {</span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="kw">new</span> <span class="bu">Date</span>(d<span class="op">.</span><span class="at">date</span>)<span class="op">,</span></span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"event_type"</span><span class="op">,</span></span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>      <span class="dt">tip</span><span class="op">:</span> {<span class="dt">format</span><span class="op">:</span> {<span class="dt">x</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="kw">false</span>}}<span class="op">,</span></span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>      <span class="dt">channels</span><span class="op">:</span> {<span class="dt">event</span><span class="op">:</span> <span class="st">"event_name"</span><span class="op">,</span> <span class="dt">institution</span><span class="op">:</span> <span class="st">"institution"</span>}</span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="expression">
 
 </div>
 </div>
 </div>
-<p><em>More datasets will be added as the project develops.</em></p>
-
-
 </section>
 </section>
+</section>
+<section id="euandi-2024-european-parliament-election" class="level2">
+<h2 class="anchored" data-anchor-id="euandi-2024-european-parliament-election">euandi 2024 (European Parliament election)</h2>
+<p>Voting Advice Application expert coding for the June 2024 European Parliament election: where Irish parties and candidates, and the EU-level party families, placed themselves on 36 policy statements. Two parallel datasets (<code>ie_*</code>, <code>eu_*</code>), final placement only.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 19%">
+<col style="width: 58%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Table</th>
+<th style="text-align: right;">Rows</th>
+<th>What it captures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ie_parties</code></td>
+<td style="text-align: right;">19</td>
+<td>Irish parties (13) + independent candidates (6)</td>
+</tr>
+<tr class="even">
+<td><code>ie_statements</code></td>
+<td style="text-align: right;">36</td>
+<td>The policy-statement battery (Ireland wording)</td>
+</tr>
+<tr class="odd">
+<td><code>ie_positions</code></td>
+<td style="text-align: right;">684</td>
+<td>Each entity’s final position on each statement</td>
+</tr>
+<tr class="even">
+<td><code>ie_salience</code></td>
+<td style="text-align: right;">57</td>
+<td>Each entity’s three most salient statements</td>
+</tr>
+<tr class="odd">
+<td><code>eu_parties</code></td>
+<td style="text-align: right;">10</td>
+<td>EU-level political party families</td>
+</tr>
+<tr class="even">
+<td><code>eu_statements</code></td>
+<td style="text-align: right;">36</td>
+<td>The statement battery (EU wording)</td>
+</tr>
+<tr class="odd">
+<td><code>eu_positions</code></td>
+<td style="text-align: right;">360</td>
+<td>Each family’s final position on each statement</td>
+</tr>
+<tr class="even">
+<td><code>eu_salience</code></td>
+<td style="text-align: right;">30</td>
+<td>Each family’s three most salient statements</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Downloads (Ireland):</strong> <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_parties.csv">ie_parties</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_statements.csv">ie_statements</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_positions.csv">ie_positions</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_salience.csv">ie_salience</a> — <strong>EU-level:</strong> <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_parties.csv">eu_parties</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_statements.csv">eu_statements</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_positions.csv">eu_positions</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_salience.csv">eu_salience</a></p>
+<p><strong>Documentation:</strong> <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/README.md">Dataset README</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/CODEBOOK.md">Codebook</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/SUMMARY.md">Summary &amp; figures</a></p>
+<div class="callout callout-style-simple callout-note">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Source &amp; attribution.</strong> Derived from the <strong>euandi 2024</strong> Voting Advice Application coding (euandi 2024 team, European University Institute), published under CC BY 4.0 via <a href="https://cadmus.eui.eu/entities/publication/6bd21956-5731-4a7b-be18-c24bba63a2aa">EUI Cadmus</a>. Redistributed under CC BY 4.0 with attribution to the original authors.</p>
+</div>
+</div>
+</div>
+<p>The position matrix below shows every Irish party and candidate (rows, ordered by similarity) against all 36 statements; the colour is the coded position.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="datasets/election_data/figures/ie_position_heatmap.png" class="img-fluid figure-img"></p>
+<figcaption>Irish parties: final positions on 36 statements</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="datasets/election_data/figures/ie_position_distribution.png" class="img-fluid figure-img"></p>
+<figcaption>Irish parties: distribution of final positions</figcaption>
+</figure>
+</div>
+</section>
+<section id="commission-agenda-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="commission-agenda-implementation">Commission Agenda Implementation</h2>
+<p>How far has the Commission delivered the legislative agenda it set itself? Each planned agenda item is linked to its real legislative fate via the EP Open Data API and EUR-Lex, built as a <strong>time series</strong> (each status row is dated). This release ships <strong>Phase 1</strong>: the automated Annex IV procedure status and the term corpus; Annex I links and evaluation outcomes are scaffolded for manual curation.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 19%">
+<col style="width: 58%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Table</th>
+<th style="text-align: right;">Rows</th>
+<th>What it captures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>agenda_items</code></td>
+<td style="text-align: right;">190</td>
+<td>The agenda spine: every CWP item + 63 legislative commitments</td>
+</tr>
+<tr class="even">
+<td><code>procedure_references</code></td>
+<td style="text-align: right;">38</td>
+<td>Procedure references parsed from the agenda</td>
+</tr>
+<tr class="odd">
+<td><code>procedure_status</code></td>
+<td style="text-align: right;">38</td>
+<td>Dated status snapshot per procedure (the core deliverable)</td>
+</tr>
+<tr class="even">
+<td><code>term_legislative_output</code></td>
+<td style="text-align: right;">170</td>
+<td>Baseline corpus of all 2024-2026 term procedures</td>
+</tr>
+<tr class="odd">
+<td><code>evaluations</code></td>
+<td style="text-align: right;">37</td>
+<td>Annex II/III evaluation tracking (curated)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Downloads:</strong> <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/agenda_items.csv">agenda_items</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/procedure_references.csv">procedure_references</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/procedure_status.csv">procedure_status</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/term_legislative_output.csv">term_legislative_output</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/evaluations.csv">evaluations</a></p>
+<p><strong>Documentation:</strong> <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/README.md">Dataset README</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/CODEBOOK.md">Codebook</a> · <a href="https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/SUMMARY.md">Summary &amp; figures</a></p>
+<p>The status of the agenda-linked procedures, read against the full procedure ladder. As of the snapshot, all resolved procedures sit at first reading and none have been adopted: the Annex IV items are old proposals pending withdrawal, and a Commission withdrawal is not an EP procedure stage.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="datasets/agenda_implementation/figures/procedure_status.png" class="img-fluid figure-img"></p>
+<figcaption>Status of agenda-linked procedures</figcaption>
+</figure>
+</div>
+<hr>
+<p><em>Generated from the dataset pipelines; figures are reproducible via each dataset’s <code>make_summary.py</code>. More datasets will be added as the project develops.</em></p>
+
+
 </section>
 
 </main> <!-- /main -->

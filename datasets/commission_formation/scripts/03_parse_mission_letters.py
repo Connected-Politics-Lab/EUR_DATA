@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 import config
 from scripts.utils import setup_logging, ensure_dirs, save_both
+from scripts import llm_classify
 
 try:
     import pdfplumber
@@ -100,9 +101,11 @@ def detect_section_heading(lines: List[str], line_idx: int) -> str:
 
 # Patterns for directive sentences
 DIRECTIVE_PATTERNS = [
-    re.compile(r"I (?:want|would like|expect|ask|am asking) you to\s+(.+)", re.IGNORECASE),
-    re.compile(r"You (?:should|will|must|are expected to)\s+(.+)", re.IGNORECASE),
-    re.compile(r"I (?:want|would like) you to (?:also\s+)?(.+)", re.IGNORECASE),
+    # Bound to a single sentence (`[^.]+\.`) rather than a greedy `.+`, which
+    # otherwise runs to the end of the page and swallows many unrelated bullets.
+    re.compile(r"I (?:want|would like|expect|ask|am asking) you to\s+([^.]+\.)", re.IGNORECASE),
+    re.compile(r"You (?:should|will|must|are expected to)\s+([^.]+\.)", re.IGNORECASE),
+    re.compile(r"I (?:want|would like) you to (?:also\s+)?([^.]+\.)", re.IGNORECASE),
     re.compile(r"(?:^|\.\s+)(ensure (?:that\s+)?[^.]+\.)", re.IGNORECASE),
     re.compile(r"(?:^|\.\s+)(propose (?:a |an |the )?[^.]+\.)", re.IGNORECASE),
     re.compile(r"(?:^|\.\s+)(launch (?:a |an |the )?[^.]+\.)", re.IGNORECASE),
@@ -139,29 +142,69 @@ LEGISLATIVE_PATTERN = re.compile(
 BULLET_PATTERN = re.compile(r"^\s*[-–—*•]\s+(.+)")
 
 
-def extract_bullet_commitments(text: str, lines: List[str], page_number: int) -> List[Dict]:
-    """Strategy 1: Extract bullet-pointed commitments (high confidence)."""
-    commitments = []
-    for i, line in enumerate(lines):
-        match = BULLET_PATTERN.match(line)
-        if match:
-            commitment_text = match.group(1).strip()
-            # Skip very short bullets (likely sub-bullets or noise)
-            if len(commitment_text) < 20:
-                continue
-            # Skip bullets that are just names or headers
-            if commitment_text == commitment_text.upper() and len(commitment_text) < 50:
-                continue
+def _looks_like_heading(line: str) -> bool:
+    """A short title-case / all-caps line with no terminal full stop."""
+    s = line.strip()
+    if not (10 < len(s) < 100) or s.endswith("."):
+        return False
+    if s.startswith(("-", "*", "–", "—", "•")):
+        return False
+    return (s == s.upper() or s == s.title()) and len(s.split()) <= 10
 
-            section = detect_section_heading(lines, i)
-            commitments.append({
-                "commitment_text": commitment_text,
-                "section_heading": section,
-                "extraction_method": "bullet_point",
-                "confidence": "high",
-                "page_number": page_number,
-                "raw_paragraph": line.strip(),
-            })
+
+def extract_bullet_commitments(text: str, lines: List[str], page_number: int) -> List[Dict]:
+    """Strategy 1: Extract bullet-pointed commitments (high confidence).
+
+    A bullet's text frequently wraps across several physical lines in the PDF.
+    Gather those continuation lines (until a blank line, the next bullet, or a
+    heading that follows a completed sentence) so the commitment is captured in
+    full rather than truncated at the first line.
+    """
+    commitments = []
+    n = len(lines)
+    i = 0
+    while i < n:
+        match = BULLET_PATTERN.match(lines[i])
+        if not match:
+            i += 1
+            continue
+
+        bullet_idx = i
+        parts = [match.group(1).strip()]
+        raw_lines = [lines[i].strip()]
+        j = i + 1
+        while j < n and (j - i) <= 8:
+            raw = lines[j]
+            nxt = raw.strip()
+            if not nxt or BULLET_PATTERN.match(raw):
+                break  # blank line or next bullet ends this commitment
+            acc = " ".join(parts).rstrip()
+            # A heading only ends the bullet once the current sentence is complete;
+            # otherwise the line is a mid-sentence continuation.
+            if _looks_like_heading(raw) and acc and acc[-1] in ".!?:":
+                break
+            parts.append(nxt)
+            raw_lines.append(nxt)
+            j += 1
+        i = max(j, i + 1)
+
+        commitment_text = re.sub(r"\s+", " ", " ".join(parts)).strip()
+        # Skip very short bullets (likely sub-bullets or noise)
+        if len(commitment_text) < 20:
+            continue
+        # Skip bullets that are just names or headers
+        if commitment_text == commitment_text.upper() and len(commitment_text) < 50:
+            continue
+
+        section = detect_section_heading(lines, bullet_idx)
+        commitments.append({
+            "commitment_text": commitment_text,
+            "section_heading": section,
+            "extraction_method": "bullet_point",
+            "confidence": "high",
+            "page_number": page_number,
+            "raw_paragraph": " ".join(raw_lines),
+        })
 
     return commitments
 
@@ -329,26 +372,39 @@ def make_short_description(text: str, max_len: int = 100) -> str:
 # ============================================================
 
 def deduplicate_commitments(commitments: List[Dict]) -> List[Dict]:
-    """Remove near-duplicate commitments, preferring higher confidence."""
+    """Remove duplicate commitments within one commissioner's letter.
+
+    The three strategies overlap heavily: a directive/legislative sentence is
+    often also part of a bullet. We keep the higher-confidence and fuller version
+    and drop any commitment whose text is contained within one already kept.
+    """
     if not commitments:
         return commitments
 
-    # Sort by confidence (high first) then by extraction method
+    # Bullets (high confidence) first, then longer text first, so the fullest
+    # version of an overlapping commitment is the one retained.
     confidence_order = {"high": 0, "medium": 1, "low": 2}
-    commitments.sort(key=lambda c: confidence_order.get(c["confidence"], 3))
+    commitments.sort(
+        key=lambda c: (confidence_order.get(c["confidence"], 3),
+                       -len(c["commitment_text"]))
+    )
 
-    seen = set()
-    deduped = []
+    def _norm(text: str) -> str:
+        return re.sub(r"\W+", " ", text.lower()).strip()
+
+    kept = []
+    kept_norms = []
     for c in commitments:
-        # Normalize for comparison
-        norm = re.sub(r"\s+", " ", c["commitment_text"].lower().strip())
-        # Use first 80 chars as dedup key
-        key = norm[:80]
-        if key not in seen:
-            seen.add(key)
-            deduped.append(c)
+        norm = _norm(c["commitment_text"])
+        if len(norm) < 15:
+            continue
+        # Drop if this text is contained in an already-kept (fuller) commitment.
+        if any(norm in k for k in kept_norms):
+            continue
+        kept.append(c)
+        kept_norms.append(norm)
 
-    return deduped
+    return kept
 
 
 # ============================================================
@@ -410,18 +466,33 @@ def parse_mission_letters() -> pd.DataFrame:
         # Deduplicate
         page_commitments = deduplicate_commitments(page_commitments)
 
-        # Add commissioner metadata and classification
+        # Add commissioner metadata (classification happens in one pass below).
         for c in page_commitments:
             commitment_counter += 1
             c["commitment_id"] = f"C{commitment_counter:04d}"
             c["commissioner_id"] = cid
             c["commissioner_name"] = name
             c["portfolio_title"] = portfolio
-            c["commitment_type"] = classify_commitment(c["commitment_text"])
             c["commitment_short"] = make_short_description(c["commitment_text"])
 
         all_commitments.extend(page_commitments)
         logger.info(f"  {name}: {len(page_commitments)} commitments extracted")
+
+    # Classify every commitment in one cache-first LLM pass (Sonnet 4.6), with
+    # the keyword classifier as a fallback for texts neither cached nor reachable.
+    texts = [c["commitment_text"] for c in all_commitments]
+    llm_results = llm_classify.classify_texts(texts, logger)
+    for c in all_commitments:
+        res = llm_results.get(c["commitment_text"])
+        if res:
+            c["commitment_type"] = res["commitment_type"]
+            c["classification_method"] = "llm"
+        else:
+            c["commitment_type"] = classify_commitment(c["commitment_text"])
+            c["classification_method"] = "keyword"
+    n_llm = sum(1 for c in all_commitments if c["classification_method"] == "llm")
+    logger.info(f"Classification: {n_llm}/{len(all_commitments)} via LLM, "
+                f"{len(all_commitments) - n_llm} via keyword fallback.")
 
     if not all_commitments:
         logger.warning("No commitments extracted from any mission letter!")
@@ -439,8 +510,8 @@ def parse_mission_letters() -> pd.DataFrame:
     columns = [
         "commitment_id", "commissioner_id", "commissioner_name",
         "portfolio_title", "commitment_text", "commitment_short",
-        "section_heading", "commitment_type", "extraction_method",
-        "confidence", "page_number", "raw_paragraph",
+        "section_heading", "commitment_type", "classification_method",
+        "extraction_method", "confidence", "page_number", "raw_paragraph",
     ]
     columns = [c for c in columns if c in df.columns]
     df = df[columns]

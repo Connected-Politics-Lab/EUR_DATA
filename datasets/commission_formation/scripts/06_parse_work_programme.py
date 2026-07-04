@@ -49,6 +49,11 @@ ANNEX_TITLES = {
     "IV": "Pending proposals to be repealed",
 }
 
+# Indicative timing strings look like "Q2 2025", "Q1/Q2 2025", "Q3 / Q4 2025".
+# In some annex tables (II/III) this value lands in the column that otherwise
+# carries the legal instrument, so we detect it and route it to the right field.
+TIMING_RE = re.compile(r"^\s*Q[1-4]\b", re.IGNORECASE)
+
 
 def download_cwp(logger) -> Path:
     """Download the CWP 2025 PDFs (main + annexes). Returns annexes path (has tables)."""
@@ -206,6 +211,20 @@ def parse_table_rows(rows: List[List], annex: str, logger) -> List[Dict]:
                 item_number = num_match.group(1)
                 title = num_match.group(2)
 
+        # Some annex tables (II/III) place the indicative timing in the column
+        # that otherwise carries the legal instrument. Route any timing string
+        # (e.g. "Q2 2025") to indicative_timing and keep type_of_act for the
+        # legal instrument only.
+        if type_of_act and TIMING_RE.match(type_of_act):
+            if not timing:
+                timing = type_of_act
+            type_of_act = ""
+
+        # Normalise the legal instrument to a single case so downstream counts
+        # (e.g. REGULATION vs Regulation) are consistent.
+        if type_of_act:
+            type_of_act = type_of_act.upper()
+
         if title:
             items.append({
                 "annex": annex,
@@ -261,7 +280,7 @@ def extract_text_fallback(pdf_path: Path, page_indices: List[int],
             text, re.IGNORECASE
         )
         if type_match:
-            type_of_act = type_match.group(1)
+            type_of_act = type_match.group(1).upper()
 
         # Try to extract timing
         timing = ""
@@ -283,6 +302,68 @@ def extract_text_fallback(pdf_path: Path, page_indices: List[int],
         })
 
     logger.info(f"Annex {annex}: extracted {len(items)} items via text fallback")
+    return items
+
+
+# Annex I lists individual initiatives in a "No. | Policy objective | Initiatives"
+# table; each initiative carries its (non-)legislative nature and indicative
+# quarter in brackets. A numbered row may hold several initiatives, and the
+# policy objective can wrap across table rows, so we group by number.
+ANNEX_I_INITIATIVE_RE = re.compile(
+    r"\((non-legislative or legislative|non-legislative|legislative)\b"
+    r"[\s\S]*?(Q[1-4](?:\s*/\s*Q[1-4])?\s*20\d{2}|20\d{2})\s*\)"
+)
+
+
+def parse_annex_i(pdf_path: Path, page_indices: List[int], logger) -> List[Dict]:
+    """Parse Annex I into one row per initiative (name, objective, type, timing)."""
+    def _cell(c):
+        return (c or "").replace("\n", " ").strip()
+
+    groups = []
+    current = None
+    with pdfplumber.open(pdf_path) as pdf:
+        for page_idx in page_indices:
+            for table in pdf.pages[page_idx].extract_tables() or []:
+                for row in table:
+                    cells = [_cell(c) for c in row]
+                    num = next((c for c in cells if re.fullmatch(r"\d{1,2}\.", c)), "")
+                    init = next((c for c in cells if ANNEX_I_INITIATIVE_RE.search(c)), "")
+                    obj = next((c for c in cells[1:] if c
+                                and not ANNEX_I_INITIATIVE_RE.search(c)
+                                and not re.fullmatch(r"\d{1,2}\.", c)
+                                and c not in ("Policy objective", "Initiatives", "No.")), "")
+                    if num:
+                        if current:
+                            groups.append(current)
+                        current = {"num": num.rstrip("."),
+                                   "obj": [obj] if obj else [],
+                                   "inits": [init] if init else []}
+                    elif current:
+                        if obj:
+                            current["obj"].append(obj)
+                        if init:
+                            current["inits"].append(init)
+        if current:
+            groups.append(current)
+
+    type_norm = {"legislative": "Legislative", "non-legislative": "Non-legislative",
+                 "non-legislative or legislative": "Non-legislative or legislative"}
+    items = []
+    for g in groups:
+        objective = " ".join(g["obj"]).strip()
+        for init in g["inits"]:
+            m = ANNEX_I_INITIATIVE_RE.search(init)
+            items.append({
+                "annex": "I",
+                "item_number": g["num"],
+                "title": init[:m.start()].strip(" ."),
+                "description": "",
+                "policy_area": objective,
+                "type_of_act": type_norm.get(m.group(1), m.group(1)),
+                "indicative_timing": re.sub(r"\s+", " ", m.group(2)).strip(),
+            })
+    logger.info(f"Annex I: parsed {len(items)} initiatives from {len(groups)} numbered rows")
     return items
 
 
@@ -308,6 +389,15 @@ def parse_work_programme() -> pd.DataFrame:
         pages = annex_pages.get(annex_num, [])
         if not pages:
             logger.warning(f"No pages identified for Annex {annex_num}")
+            continue
+
+        # Annex I has a bespoke initiative-level layout; parse it directly.
+        if annex_num == "I":
+            items = parse_annex_i(pdf_path, pages, logger)
+            for item in items:
+                item_id_counter += 1
+                item["item_id"] = f"WP{item_id_counter:03d}"
+            all_items.extend(items)
             continue
 
         # Try table extraction first

@@ -4,10 +4,14 @@ title: "EUR_DATA: Integrating EU studies and Data Analytics using a Project-base
 abstract: >-
   Open datasets, reproducible code, and educational resources on European
   political institutions, produced by the EUR_DATA Erasmus+ Jean Monnet Module.
-  The first release covers the formation of the 2024-2029 European Commission:
-  the College of Commissioners, mission-letter commitments, confirmation
+  The collection covers: (1) the formation of the 2024-2029 European Commission
+  (the College of Commissioners, mission-letter commitments, confirmation
   hearings, the investiture vote, the 2025 Commission Work Programme, and a
-  formation timeline.
+  formation timeline); (2) euandi 2024 Voting Advice Application coding of Irish
+  parties and candidates and of EU-level party families for the June 2024
+  European Parliament election; and (3) implementation tracking of the
+  Commission's legislative agenda, resolved against the European Parliament Open
+  Data API and EUR-Lex.
 type: dataset
 authors:
   - family-names: Cross
@@ -21,6 +25,9 @@ keywords:
   - European Union
   - European Commission
   - European Parliament
+  - European Parliament elections
+  - voting advice application
+  - legislation
   - political science
   - open data
   - Jean Monnet

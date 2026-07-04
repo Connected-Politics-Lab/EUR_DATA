@@ -1,0 +1,11 @@
+﻿party_id,sheet_name,acronym,full_name,entity_type,affiliation,constituency,country,level
+ALDE,ALDE,ALDE,Alliance of Liberals and Democrats for Europe,eu_party_family,,,EU,european
+EFA,EFA,EFA,European Free Alliance,eu_party_family,,,EU,european
+EGP,Greens,EGP,European Green Party,eu_party_family,,,EU,european
+EDP,EDP,EDP,European Democratic Party,eu_party_family,,,EU,european
+PEL,PEL,PEL,Party of the European Left,eu_party_family,,,EU,european
+ECPM,ECPM,ECPM,European Christian Political Movement,eu_party_family,,,EU,european
+ECR,ECR,ECR,European Conservatives and Reformists Party,eu_party_family,,,EU,european
+PES,PES,PES,Party of European Socialists,eu_party_family,,,EU,european
+ID,ID,ID,Identity and Democracy Party,eu_party_family,,,EU,european
+EPP,EPP,EPP,European People's Party,eu_party_family,,,EU,european

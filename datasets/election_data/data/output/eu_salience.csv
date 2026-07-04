@@ -1,0 +1,31 @@
+﻿salience_id,party_id,salience_rank,statement_id,statement_text
+EUS0001,ALDE,1,28,"The European Union should continue providing military aid, such as weapons and ammunition, to Ukraine"
+EUS0002,ALDE,2,23,On foreign policy issues the EU should speak with one voice
+EUS0003,ALDE,3,33,The EU should sanction member states whose governments undermine the rule of law
+EUS0004,EFA,1,22,The EU should protect European farmers from external competition even if this leads to higher food prices
+EUS0005,EFA,2,23,On foreign policy issues the EU should speak with one voice
+EUS0006,EFA,3,33,The EU should sanction member states whose governments undermine the rule of law
+EUS0007,EGP,1,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+EUS0008,EGP,2,13,The promotion of public transport should be fostered through green taxes (e.g. road taxing)
+EUS0009,EGP,3,27,"As planned in the European Green Deal, there should be a Europe-wide ban on selling internal combustion engine vehicles by 2035"
+EUS0010,EDP,1,30,European integration is a good thing
+EUS0011,EDP,2,19,The EU should strenghten the regulation of Artificial Intelligence technology even if this means slowing down innovation
+EUS0012,EDP,3,25,The European Union should strengthen its security and defence policy
+EUS0013,PEL,1,4,Taxation on the wealthiest part of the population should be increased
+EUS0014,PEL,2,11,Immigration into EU Member States should be made more restrictive
+EUS0015,PEL,3,36,EU Member States should increase military spending
+EUS0016,ECPM,1,7,The legalisation of same sex marriages is a good thing
+EUS0017,ECPM,2,10,Access to abortion should become more restricted
+EUS0018,ECPM,3,31,Individual member states of the EU should have less veto power
+EUS0019,ECR,1,9,Immigrants from outside Europe should be required to accept our culture and values
+EUS0020,ECR,2,24,Asylum-seekers should be distributed proportionally among EU Member States through a mandatory relocation system
+EUS0021,ECR,3,18,The EU should acquire its own tax raising powers
+EUS0022,PES,1,4,Taxation on the wealthiest part of the population should be increased
+EUS0023,PES,2,3,Government spending should be reduced in order to lower taxes
+EUS0024,PES,3,7,The legalisation of same sex marriages is a good thing
+EUS0025,ID,1,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+EUS0026,ID,2,30,European integration is a good thing
+EUS0027,ID,3,11,Immigration into EU Member States should be made more restrictive
+EUS0028,EPP,1,11,Immigration into EU Member States should be made more restrictive
+EUS0029,EPP,2,22,The EU should protect European farmers from external competition even if this leads to higher food prices
+EUS0030,EPP,3,25,The European Union should strengthen its security and defence policy

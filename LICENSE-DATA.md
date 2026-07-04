@@ -15,5 +15,16 @@ indicate if changes were made.
 Analytics using a Project-based Learning Approach.* University College Dublin,
 Connected Politics Lab. See [CITATION.cff](CITATION.cff).
 
+## Third-party source data
+
+Some datasets are derived from third-party sources that are themselves licensed
+CC-BY-4.0. These derivatives are redistributed under CC-BY-4.0, but you must
+**additionally credit the original source** when reusing them:
+
+- **`datasets/election_data/`** derives from the **euandi 2024** Voting Advice
+  Application expert coding (euandi 2024 team, European University Institute),
+  published under CC BY 4.0 via EUI Cadmus:
+  <https://cadmus.eui.eu/entities/publication/6bd21956-5731-4a7b-be18-c24bba63a2aa>.
+
 Code in this repository (pipeline scripts and website source) is licensed
 separately under the [Apache License 2.0](LICENSE).

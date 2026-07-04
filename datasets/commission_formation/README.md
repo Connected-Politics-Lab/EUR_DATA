@@ -28,10 +28,10 @@ Six interlinked tables covering the full arc of Commission formation, from the J
 | Table | Rows | What it captures |
 |-------|------|------------------|
 | `commissioners.csv` | 27 | The College: one row per member state, with portfolio, party, gender, and DG assignments |
-| `mission_letter_commitments.csv` | 721 | Policy commitments extracted from 26 presidential mission letters |
+| `mission_letter_commitments.csv` | 1057 | Policy commitments extracted from 26 presidential mission letters |
 | `hearings.csv` | 26 | Confirmation hearing dates, responsible committees, and outcomes |
 | `investiture_vote.csv` | 688 | MEP-level roll-call votes on the full College (27 Nov 2024) |
-| `work_programme_items.csv` | 113 | Legislative and policy items from the Commission Work Programme 2025 |
+| `work_programme_items.csv` | 127 | Legislative and policy items from the Commission Work Programme 2025 |
 | `formation_timeline.csv` | 13 | Key institutional milestones from elections to CWP adoption |
 
 All tables are linked through `commissioner_id` (a 3-letter key per commissioner). The vote table uses `ep_party_group` as a shared dimension with the commissioner table.
@@ -79,12 +79,12 @@ Country enrichment covers 100% of MEPs (688 of 688). The `national_party` field 
 
 ### Mission Letter Commitments
 
-721 specific policy commitments extracted from the 26 mission letters issued by President von der Leyen to each commissioner-designate (von der Leyen herself, as President, has no mission letter).
+1057 specific policy commitments extracted from the 26 mission letters issued by President von der Leyen to each commissioner-designate (von der Leyen herself, as President, has no mission letter).
 
-- **Extraction confidence**: 440 high-confidence commitments (extracted from bullet-point lists) and 281 medium-confidence (from directive sentences and legislative references).
-- **Commitment types**: coordination (216), policy (135), report (34), review (12), legislative (11), other (313).
-- **Top commissioners by commitment count**: Sefcovic (40), Brunner (38), Jorgensen (38), Lahbib (37), McGrath (37). The fewest: Kos (17).
-- Average: ~28 commitments per commissioner.
+- **Extraction confidence**: 440 high-confidence commitments (extracted from bullet-point lists) and 617 medium-confidence (from directive sentences and legislative references).
+- **Commitment types**: coordination (312), policy (108), report (33), review (51), legislative (63), other (490). Types are assigned by an LLM classifier (Claude Sonnet 4.6) that reads each commitment in full, distinguishing e.g. law-making from enforcement; see the codebook.
+- **Top commissioners by commitment count**: Sefcovic (59), Virkkunen (49), Brunner (49), Sejourne (47), Minzatu (47). The fewest: Kos (31).
+- Average: ~41 commitments per commissioner.
 
 Each commitment includes the full text, a short summary, the section heading from the letter, and the surrounding paragraph for context.
 
@@ -98,11 +98,11 @@ Each commitment includes the full text, a short summary, the section heading fro
 
 ### Commission Work Programme 2025
 
-113 items from the four annexes of the CWP 2025, adopted 11 February 2025:
+127 items from the four annexes of the CWP 2025, adopted 11 February 2025:
 
 | Annex | Items | Content |
 |-------|-------|---------|
-| I — New initiatives | 35 | New legislative proposals and policy actions |
+| I — New initiatives | 49 | New legislative proposals and policy actions |
 | II — REFIT | 34 | Evaluations and fitness checks of existing legislation |
 | III — Interim evaluations | 3 | Mid-term reviews in progress |
 | IV — Withdrawals and repeals | 41 | Obsolete legislation to be removed |
@@ -128,11 +128,11 @@ Annex I policy areas span competitiveness, security, decarbonisation, innovation
 
 ```
 commissioners (27)
-├── commissioner_id ──→ mission_letter_commitments (721)  [1:many]
+├── commissioner_id ──→ mission_letter_commitments (1057)  [1:many]
 ├── commissioner_id ──→ hearings (26)                     [1:1, excl. President]
 └── ep_party_group  ──→ investiture_vote (688)            [shared dimension]
 
-work_programme_items (113)   ← standalone (linkable to commissioners via policy_area)
+work_programme_items (127)   ← standalone (linkable to commissioners via policy_area)
 formation_timeline (13)      ← standalone (institutional chronology)
 ```
 
@@ -187,7 +187,7 @@ With 11 women among 27 commissioners, the data supports analysis of gendered por
 
 ### Policy Priority Analysis
 
-The 721 mission letter commitments represent the President's policy expectations for each portfolio. Comparing commitment counts and types across commissioners reveals variation in workload and policy ambition. Linking commitments thematically to the 35 new CWP initiatives in Annex I shows how mission letter priorities translate into the legislative agenda.
+The 1057 mission letter commitments represent the President's policy expectations for each portfolio. Comparing commitment counts and types across commissioners reveals variation in workload and policy ambition. Linking commitments thematically to the 49 new CWP initiatives in Annex I shows how mission letter priorities translate into the legislative agenda.
 
 ### Institutional Process
 
@@ -195,7 +195,7 @@ The timeline and hearing data together capture the procedural rhythm of Commissi
 
 ### Computational Text Analysis
 
-The commitment texts (721 rows of natural-language policy statements) and work programme titles/descriptions are suitable for NLP applications: topic modelling across portfolios, keyword extraction, semantic similarity between mission letter commitments and CWP items, or network analysis based on coordination mentions ("work closely with...") in the mission letters.
+The commitment texts (1057 rows of natural-language policy statements) and work programme titles/descriptions are suitable for NLP applications: topic modelling across portfolios, keyword extraction, semantic similarity between mission letter commitments and CWP items, or network analysis based on coordination mentions ("work closely with...") in the mission letters.
 
 ## Output Tables
 
@@ -221,7 +221,7 @@ All outputs saved as CSV + XLSX in `data/output/`.
 | `hearing_date` | str | YYYY-MM-DD of confirmation hearing |
 | `profile_url` | str | URL to EC profile page |
 
-### 2. `mission_letter_commitments.csv` (721 rows)
+### 2. `mission_letter_commitments.csv` (1057 rows)
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -272,7 +272,7 @@ All outputs saved as CSV + XLSX in `data/output/`.
 
 **Totals**: 370 for + 282 against + 36 abstain = 688
 
-### 5. `work_programme_items.csv` (113 rows)
+### 5. `work_programme_items.csv` (127 rows)
 
 | Column | Type | Description |
 |--------|------|-------------|

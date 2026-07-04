@@ -6,6 +6,7 @@ project:
   resources:
     - assets/charts/*.csv
     - oer/**
+    - datasets/**/figures/*.png
 
 website:
   title: "EUR_DATA"

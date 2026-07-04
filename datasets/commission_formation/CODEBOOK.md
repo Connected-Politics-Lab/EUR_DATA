@@ -45,7 +45,8 @@ Policy commitments extracted from the 26 presidential mission letters.
 | `commitment_text` | string | 0 | Full text of the commitment as extracted. |
 | `commitment_short` | string | 0 | Truncated summary of the commitment. |
 | `section_heading` | string | 475 | Heading of the letter section the commitment falls under, where one could be identified. |
-| `commitment_type` | string | 0 | One of `coordination`, `policy`, `report`, `review`, `legislative`, `other`. |
+| `commitment_type` | string | 0 | One of `coordination`, `policy`, `report`, `review`, `legislative`, `other`. Assigned by an LLM classifier (Claude Sonnet 4.6) reading the full commitment; a keyword classifier is the fallback when the model is unavailable (see `classification_method`). |
+| `classification_method` | string | 0 | How `commitment_type` was assigned: `llm` (Sonnet 4.6, cached) or `keyword` (heuristic fallback). |
 | `extraction_method` | string | 0 | How the commitment was identified: `bullet_point`, `directive_sentence`, `legislative_reference`. |
 | `confidence` | string | 0 | `high` (bullet-point extraction, 440 rows) or `medium` (directive/legislative, 281 rows). |
 | `page_number` | integer | 0 | Page of the source PDF the commitment appears on. |
@@ -93,20 +94,20 @@ MEP-level roll-call votes on the full College, 27 November 2024 (370 for, 282 ag
 
 ---
 
-## 5. `work_programme_items.csv` (113 rows)
+## 5. `work_programme_items.csv` (127 rows)
 
 Items from the four annexes of the Commission Work Programme 2025 (adopted 11 Feb 2025).
 
 | Column | Type | Null | Description |
 |--------|------|------|-------------|
 | `item_id` | string | 0 | **Primary key.** Sequential code (`WP001`...). |
-| `annex` | string | 0 | Source annex: `I` (new initiatives, 35), `II` (REFIT, 34), `III` (interim evaluations, 3), `IV` (withdrawals/repeals, 41). |
-| `item_number` | float | 0 | Row number within the source annex table. |
-| `title` | string | 0 | Item title. For Annex IV this contains the COM document reference plus a status description. |
-| `description` | string | 72 | Additional descriptive text, where present. |
-| `policy_area` | string | 79 | Policy area, where the source table provided one. |
-| `type_of_act` | string | 69 | Legal instrument for the item (`REGULATION`, `DIRECTIVE`, `DECISION`, `RECOMMENDATION`), populated mainly for Annex IV. **See Known Limitations:** label casing is inconsistent, and three rows carry a timing string here instead of an instrument. |
-| `indicative_timing` | float | 73 | For Annex IV items, the year of the original COM proposal (parsed from `COM(YYYY)`). Sparsely populated; not a planned-delivery quarter. |
+| `annex` | string | 0 | Source annex: `I` (new initiatives, 49), `II` (REFIT, 34), `III` (interim evaluations, 3), `IV` (withdrawals/repeals, 41). |
+| `item_number` | float | 0 | Row number within the source annex table. Annex I numbers may repeat where one entry lists several initiatives. |
+| `title` | string | 0 | Item title. For Annex I this is the initiative name; for Annex IV it contains the COM document reference plus a status description. |
+| `description` | string | 86 | Additional descriptive text, where present. |
+| `policy_area` | string | 44 | Policy area / objective. Populated for Annex I (the CWP policy objective) and where other source tables provided one. |
+| `type_of_act` | string | 37 | For Annex IV, the legal instrument (`REGULATION`, `DIRECTIVE`, `DECISION`, `RECOMMENDATION`), upper-cased. For Annex I, the initiative's nature (`Legislative` / `Non-legislative` / `Non-legislative or legislative`). Always empty for Annexes II and III: the source CWP tables carry no act type for REFIT items or evaluations. |
+| `indicative_timing` | string | 35 | For Annex I, the planned quarter (e.g. `Q2 2025`); for Annex IV, the year of the original COM proposal; for the three Annex III rows, the indicative quarter. |
 
 ---
 
@@ -158,10 +159,6 @@ foreign key into the others.
   affiliation is provided.
 - **`hearings`** URL columns (`evaluation_letter_url`, `written_questions_url`,
   `video_url`) are reserved placeholders and are not yet populated.
-- **`work_programme_items.type_of_act`** has inconsistent casing (e.g.
-  `REGULATION` vs `Regulation`); normalise with `.str.upper()` before counting.
-  Three Annex II/III rows additionally carry a timing string (`Q2 2025`) in this
-  field rather than a legal instrument.
 - **`work_programme_items.indicative_timing`** holds the year of the original
   proposal for Annex IV withdrawals, not a forward-looking delivery date.
 

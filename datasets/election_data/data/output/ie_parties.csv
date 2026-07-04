@@ -1,0 +1,20 @@
+﻿party_id,sheet_name,acronym,full_name,entity_type,affiliation,constituency,country,level
+SF,SF,SF,Sinn Féin,party,,,IE,national
+SD,SD,SD,Social Democrats,party,,,IE,national
+IF,IF,IF,Ireland First,party,,,IE,national
+PBP,PBP,PBP,Solidarity–People Before Profit,party,,,IE,national
+RG,RG,RG,Rabharta Glas,party,,,IE,national
+IFP,IFP,IFP,Irish Freedom Party,party,,,IE,national
+ATU,ATU,ATU,Aontú,party,,,IE,national
+LP,LP,LP,The Labour Party,party,,,IE,national
+NP,NP,NP,National Party,party,,,IE,national
+GP,GP,GP,Green Party,party,,,IE,national
+FG,FG,FG,Fine Gael,party,,,IE,national
+FF,FF,FF,Fianna Fáil,party,,,IE,national
+II,II,II,Independent Ireland,party,,,IE,national
+WALLACE,Wallace (I4C- South),,Mick Wallace,independent_candidate,Independents 4 Change,South,IE,national
+DEBARRA,De Barra (IND - South),,Graham De Barra,independent_candidate,Independent,South,IE,national
+PUNCH,Punch (IND - South),,Eddie Punch,independent_candidate,Independent,South,IE,national
+FLANAGAN,Flanagan (IND - Midlands NW),,Luke Flanagan,independent_candidate,Independent,Midlands–North-West,IE,national
+DALY,Daly (I4C - Dublin),,Clare Daly,independent_candidate,Independents 4 Change,Dublin,IE,national
+OROURKE,O'Rourke - (IND - Dublin),,Stephen O'Rourke,independent_candidate,Independent,Dublin,IE,national

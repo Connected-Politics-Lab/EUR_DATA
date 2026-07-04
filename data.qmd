@@ -6,7 +6,8 @@ toc: true
 The EUR_DATA collection provides structured, analysis-ready datasets on European
 political institutions. Each dataset is released with reproducible pipeline code,
 a column-level codebook, and a test suite. All data is licensed
-[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/).
+[CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) (the euandi dataset
+additionally requires crediting its original authors — see that section).
 
 ## Commission Formation (2024-2029)
 
@@ -20,7 +21,7 @@ Programme. Six interlinked tables, all keyed on a three-letter `commissioner_id`
 | `mission_letter_commitments` | 721 | Policy commitments from 26 presidential mission letters |
 | `hearings` | 26 | Confirmation hearing dates, committees, and outcomes |
 | `investiture_vote` | 688 | MEP-level roll-call votes on the College (27 Nov 2024) |
-| `work_programme_items` | 113 | Items from the four annexes of the CWP 2025 |
+| `work_programme_items` | 127 | Items from the four annexes of the CWP 2025 |
 | `formation_timeline` | 13 | Key institutional milestones (250-day span) |
 
 **Downloads:**
@@ -83,8 +84,8 @@ Plot.plot({
 
 #### Mission-letter commitments per commissioner
 
-721 commitments were extracted from the 26 mission letters: 440 high-confidence
-(from bullet-point lists) and 281 medium-confidence (from directive sentences and
+1057 commitments were extracted from the 26 mission letters: 440 high-confidence
+(from bullet-point lists) and 617 medium-confidence (from directive sentences and
 legislative references).
 
 ```{ojs}
@@ -112,7 +113,7 @@ Plot.plot({
 
 #### Commission Work Programme 2025 by annex
 
-113 items across the four annexes of the work programme adopted on 11 February 2025.
+127 items across the four annexes of the work programme adopted on 11 February 2025.
 
 ```{ojs}
 //| echo: false
@@ -157,4 +158,90 @@ Plot.plot({
 })
 ```
 
-*More datasets will be added as the project develops.*
+## euandi 2024 (European Parliament election)
+
+Voting Advice Application expert coding for the June 2024 European Parliament
+election: where Irish parties and candidates, and the EU-level party families,
+placed themselves on 36 policy statements. Two parallel datasets (`ie_*`, `eu_*`),
+final placement only.
+
+| Table | Rows | What it captures |
+|-------|-----:|------------------|
+| `ie_parties` | 19 | Irish parties (13) + independent candidates (6) |
+| `ie_statements` | 36 | The policy-statement battery (Ireland wording) |
+| `ie_positions` | 684 | Each entity's final position on each statement |
+| `ie_salience` | 57 | Each entity's three most salient statements |
+| `eu_parties` | 10 | EU-level political party families |
+| `eu_statements` | 36 | The statement battery (EU wording) |
+| `eu_positions` | 360 | Each family's final position on each statement |
+| `eu_salience` | 30 | Each family's three most salient statements |
+
+**Downloads (Ireland):**
+[ie_parties](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_parties.csv) ·
+[ie_statements](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_statements.csv) ·
+[ie_positions](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_positions.csv) ·
+[ie_salience](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/ie_salience.csv) —
+**EU-level:**
+[eu_parties](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_parties.csv) ·
+[eu_statements](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_statements.csv) ·
+[eu_positions](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_positions.csv) ·
+[eu_salience](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/data/output/eu_salience.csv)
+
+**Documentation:**
+[Dataset README](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/README.md) ·
+[Codebook](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/CODEBOOK.md) ·
+[Summary & figures](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/election_data/SUMMARY.md)
+
+::: {.callout-note appearance="simple"}
+**Source & attribution.** Derived from the **euandi 2024** Voting Advice
+Application coding (euandi 2024 team, European University Institute), published
+under CC BY 4.0 via [EUI Cadmus](https://cadmus.eui.eu/entities/publication/6bd21956-5731-4a7b-be18-c24bba63a2aa).
+Redistributed under CC BY 4.0 with attribution to the original authors.
+:::
+
+The position matrix below shows every Irish party and candidate (rows, ordered
+by similarity) against all 36 statements; the colour is the coded position.
+
+![Irish parties: final positions on 36 statements](datasets/election_data/figures/ie_position_heatmap.png)
+
+![Irish parties: distribution of final positions](datasets/election_data/figures/ie_position_distribution.png)
+
+## Commission Agenda Implementation
+
+How far has the Commission delivered the legislative agenda it set itself? Each
+planned agenda item is linked to its real legislative fate via the EP Open Data
+API and EUR-Lex, built as a **time series** (each status row is dated). This
+release ships **Phase 1**: the automated Annex IV procedure status and the term
+corpus; Annex I links and evaluation outcomes are scaffolded for manual curation.
+
+| Table | Rows | What it captures |
+|-------|-----:|------------------|
+| `agenda_items` | 190 | The agenda spine: every CWP item + 63 legislative commitments |
+| `procedure_references` | 38 | Procedure references parsed from the agenda |
+| `procedure_status` | 38 | Dated status snapshot per procedure (the core deliverable) |
+| `term_legislative_output` | 170 | Baseline corpus of all 2024-2026 term procedures |
+| `evaluations` | 37 | Annex II/III evaluation tracking (curated) |
+
+**Downloads:**
+[agenda_items](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/agenda_items.csv) ·
+[procedure_references](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/procedure_references.csv) ·
+[procedure_status](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/procedure_status.csv) ·
+[term_legislative_output](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/term_legislative_output.csv) ·
+[evaluations](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/data/output/evaluations.csv)
+
+**Documentation:**
+[Dataset README](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/README.md) ·
+[Codebook](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/CODEBOOK.md) ·
+[Summary & figures](https://github.com/Connected-Politics-Lab/EUR_DATA/blob/main/datasets/agenda_implementation/SUMMARY.md)
+
+The status of the agenda-linked procedures, read against the full procedure
+ladder. As of the snapshot, all resolved procedures sit at first reading and none
+have been adopted: the Annex IV items are old proposals pending withdrawal, and a
+Commission withdrawal is not an EP procedure stage.
+
+![Status of agenda-linked procedures](datasets/agenda_implementation/figures/procedure_status.png)
+
+---
+
+*Generated from the dataset pipelines; figures are reproducible via each
+dataset's `make_summary.py`. More datasets will be added as the project develops.*

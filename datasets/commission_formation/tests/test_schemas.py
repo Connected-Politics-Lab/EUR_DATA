@@ -26,7 +26,8 @@ SCHEMAS = {
     "mission_letter_commitments.csv": [
         "commitment_id", "commissioner_id", "commissioner_name",
         "portfolio_title", "commitment_text", "commitment_short",
-        "section_heading", "commitment_type", "extraction_method",
+        "section_heading", "commitment_type", "classification_method",
+        "extraction_method",
         "confidence", "page_number", "raw_paragraph",
     ],
     "hearings.csv": [

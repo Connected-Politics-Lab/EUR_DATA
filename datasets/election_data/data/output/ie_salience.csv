@@ -1,0 +1,58 @@
+﻿salience_id,party_id,salience_rank,statement_id,statement_text
+IES0001,SF,1,4,Taxation on the wealthiest part of the population should be increased
+IES0002,SF,2,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+IES0003,SF,3,5,Retirement age should be raised in order to make the pension system more sustainable
+IES0004,SD,1,1,Social programs should be maintained even at the cost of higher taxes
+IES0005,SD,2,2,The state should provide stronger financial support to unemployed workers
+IES0006,SD,3,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+IES0007,IF,1,11,Immigration into Ireland should be made more restrictive
+IES0008,IF,2,30,European integration is a good thing
+IES0009,IF,3,10,Access to abortion should become more restricted
+IES0010,PBP,1,15,All foreigners legally residing in Ireland should receive the same social security benefits as nationals
+IES0011,PBP,2,4,Taxation on the wealthiest part of the population should be increased
+IES0012,PBP,3,34,Ireland should support a two-state solution in the Palestinian-Israeli conflict
+IES0013,RG,1,4,Taxation on the wealthiest part of the population should be increased
+IES0014,RG,2,27,"As planned in the European Green Deal, there should be a Europe-wide ban on selling new internal combustion engine vehicles by 2035"
+IES0015,RG,3,34,Ireland should support a two-state solution in the Palestinian-Israeli conflict
+IES0016,IFP,1,30,European integration is a good thing
+IES0017,IFP,2,11,Immigration into Ireland should be made more restrictive
+IES0018,IFP,3,3,Government spending should be reduced in order to lower taxes
+IES0019,ATU,1,6,The state should intervene directly to control the rising prices of basic commodities
+IES0020,ATU,2,10,Access to abortion should become more restricted
+IES0021,ATU,3,1,Social programs should be maintained even at the cost of higher taxes
+IES0022,LP,1,1,Social programs should be maintained even at the cost of higher taxes
+IES0023,LP,2,6,The state should intervene directly to control the rising prices of basic commodities
+IES0024,LP,3,30,European integration is a good thing
+IES0025,NP,1,30,European integration is a good thing
+IES0026,NP,2,11,Immigration into Ireland should be made more restrictive
+IES0027,NP,3,10,Access to abortion should become more restricted
+IES0028,GP,1,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+IES0029,GP,2,27,"As planned in the European Green Deal, there should be a Europe-wide ban on selling internal combustion engine vehicles by 2035"
+IES0030,GP,3,13,The promotion of public transport should be fostered through green taxes (e.g. road taxing)
+IES0031,FG,1,3,Government spending should be reduced in order to lower taxes
+IES0032,FG,2,22,The EU should protect European farmers from external competition even if this leads to higher food prices
+IES0033,FG,3,30,European integration is a good thing
+IES0034,FF,1,30,European integration is a good thing
+IES0035,FF,2,33,The EU should sanction member states whose governments undermine the rule of law
+IES0036,FF,3,12,Gender quotas (a minimum share of positions to be filled by women) are to be welcomed
+IES0037,II,1,3,Government spending should be reduced in order to lower taxes
+IES0038,II,2,6,The state should intervene directly to control the rising prices of basic commodities
+IES0039,II,3,11,Immigration into Ireland should be made more restrictive
+IES0040,WALLACE,1,34,Ireland should support a two-state solution in the Palestinian-Israeli conflict
+IES0041,WALLACE,2,2,The state should provide stronger financial support to unemployed workers
+IES0042,WALLACE,3,25,The European Union should strengthen its security and defence policy
+IES0043,DEBARRA,1,36,Ireland should increase military spending
+IES0044,DEBARRA,2,8,The legalisation of the personal use of soft drugs is to be welcomed
+IES0045,DEBARRA,3,1,Social programs should be maintained even at the cost of higher taxes
+IES0046,PUNCH,1,22,The EU should protect European farmers from external competition even if this leads to higher food prices
+IES0047,PUNCH,2,1,Social programs should be maintained even at the cost of higher taxes
+IES0048,PUNCH,3,14,Renewable sources of energy (e.g. solar or wind energy) should be supported even if this means higher energy costs
+IES0049,FLANAGAN,1,8,The legalisation of the personal use of soft drugs is to be welcomed
+IES0050,FLANAGAN,2,22,The EU should protect European farmers from external competition even if this leads to higher food prices
+IES0051,FLANAGAN,3,36,Ireland should increase military spending
+IES0052,DALY,1,34,Ireland should support a two-state solution in the Palestinian-Israeli conflict
+IES0053,DALY,2,2,The state should provide stronger financial support to unemployed workers
+IES0054,DALY,3,25,The European Union should strengthen its security and defence policy
+IES0055,OROURKE,1,8,The legalisation of the personal use of soft drugs is to be welcomed
+IES0056,OROURKE,2,1,Social programs should be maintained even at the cost of higher taxes
+IES0057,OROURKE,3,11,Immigration into Ireland should be made more restrictive
