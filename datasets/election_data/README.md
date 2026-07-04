@@ -103,6 +103,12 @@ repository (Cadmus):
 
 This dataset reshapes that source coding into tidy tables; it is a derivative
 work and is redistributed under the same CC BY 4.0 licence, with attribution to
-the original euandi 2024 authors as required. The full coding scheme (sources,
-calibration method, and known limitations) is documented in
-[CODEBOOK.md](CODEBOOK.md). Derived tables: CC-BY-4.0; pipeline code: Apache-2.0.
+the original euandi 2024 authors as required. The parse extracts the **final
+placement only** for each party-statement pair as recorded in the source
+workbooks ("EU&I 2024 Ireland - Final coding" and "EU&I 2024 general codesheet +
+salience, EU Level parties", both dated April 2024); the euandi team's internal
+calibration between coder placement and party self-placement happened upstream
+and is documented in the euandi 2024 release, not here. Column semantics and
+known limitations are documented in [CODEBOOK.md](CODEBOOK.md). Derived tables:
+CC-BY-4.0; pipeline code: Apache-2.0. All CSVs are encoded UTF-8 with BOM
+(Excel-friendly).

@@ -105,9 +105,9 @@ Items from the four annexes of the Commission Work Programme 2025 (adopted 11 Fe
 | `item_number` | float | 0 | Row number within the source annex table. Annex I numbers may repeat where one entry lists several initiatives. |
 | `title` | string | 0 | Item title. For Annex I this is the initiative name; for Annex IV it contains the COM document reference plus a status description. |
 | `description` | string | 86 | Additional descriptive text, where present. |
-| `policy_area` | string | 44 | Policy area / objective. Populated for Annex I (the CWP policy objective) and where other source tables provided one. |
+| `policy_area` | string | 78 | Policy area / objective. Populated for Annex I (the CWP policy objective) and where other source tables provided one; empty for Annex II, whose table carries no policy-area column. |
 | `type_of_act` | string | 37 | For Annex IV, the legal instrument (`REGULATION`, `DIRECTIVE`, `DECISION`, `RECOMMENDATION`), upper-cased. For Annex I, the initiative's nature (`Legislative` / `Non-legislative` / `Non-legislative or legislative`). Always empty for Annexes II and III: the source CWP tables carry no act type for REFIT items or evaluations. |
-| `indicative_timing` | string | 35 | For Annex I, the planned quarter (e.g. `Q2 2025`); for Annex IV, the year of the original COM proposal; for the three Annex III rows, the indicative quarter. |
+| `indicative_timing` | string | 1 | For Annex I, the planned quarter (e.g. `Q2 2025`); for Annex II, the indicative finalisation quarter; for Annex IV, the year of the original COM proposal; for the three Annex III rows, the indicative quarter. Empty only for `WP126`. |
 
 ---
 

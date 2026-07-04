@@ -46,13 +46,16 @@ def _is_country_specific(text: str, token: str) -> bool:
 
 def build_dataset(entities: List[Dict], workbook: Path, prefix: str,
                   country: str, level: str, country_token: str,
-                  logger) -> Dict[str, pd.DataFrame]:
+                  logger, non_templated: frozenset = frozenset()) -> Dict[str, pd.DataFrame]:
     """
     Build and save the four tables for one dataset.
 
     prefix        - output filename prefix and id stub ("ie" / "eu")
     country/level - constant dimension values for every entity
     country_token - word marking a country-templated statement
+    non_templated - statement ids exempt from the token heuristic (statements
+                    that contain the token with identical wording in every
+                    country edition, i.e. heuristic false positives)
     Returns a dict of the four DataFrames.
     """
     tag = prefix.upper()
@@ -83,8 +86,11 @@ def build_dataset(entities: List[Dict], workbook: Path, prefix: str,
                 {
                     "statement_id": s["statement_num"],
                     "statement_text": s["statement_text"],
-                    "is_country_specific": _is_country_specific(
-                        s["statement_text"], country_token
+                    "is_country_specific": (
+                        s["statement_num"] not in non_templated
+                        and _is_country_specific(
+                            s["statement_text"], country_token
+                        )
                     ),
                 }
                 for s in statements

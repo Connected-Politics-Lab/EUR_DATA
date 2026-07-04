@@ -26,7 +26,7 @@ and cross-checked in EUR-Lex. All figures are reproducible from the output CSVs
 
 This is the core measure - and it carries an honest, easily-misread signal:
 
-- The 38 agenda-linked procedures (overwhelmingly Annex IV) resolve to **35 at
+- The 38 agenda-linked procedures (all Annex IV) resolve to **35 at
   first reading and 3 not found**, with **none adopted or in force**.
 - That is *expected*, not a failure of the data: Annex IV items are old proposals
   the Commission **plans to withdraw**. The EP API reports an EP procedure stage,
@@ -95,4 +95,6 @@ python make_summary.py        # regenerate figures/*.png from the CSVs
 ```
 
 Figures use the latest `as_of_date` snapshot and are otherwise deterministic.
-Statistics quoted above are checked against the CSVs by `verify_readme.py`.
+Statistics shared with README.md are checked against the CSVs by
+`verify_readme.py`; the remaining figures were verified against the CSVs when
+this summary was generated (snapshot 2026-06-22).

@@ -20,7 +20,7 @@ duplicated.
 | `agenda_items.csv` | 190 | The agenda spine - every CWP item + legislative commitment |
 | `procedure_references.csv` | 38 | Interinstitutional procedure references parsed from the agenda |
 | `procedure_status.csv` | 38 | **Core deliverable**: dated status snapshot per procedure |
-| `term_legislative_output.csv` | 170 | Baseline corpus of all term procedures (the denominator) |
+| `term_legislative_output.csv` | 169 | Baseline corpus of all term procedures (the denominator) |
 | `evaluations.csv` | 37 | Curated Annex II/III evaluation tracking |
 
 ## Scope
@@ -49,22 +49,27 @@ not_started -> proposed -> ep_1st_read -> council_1st -> ep_2nd_read
 ```
 
 From this we derive `delivered` (= adopted or in force), `withdrawn`, and
-`on_time` (delivery vs the item's indicative timing). The 38 procedure
-references resolved against the EP API; 37 of them resolved to a EUR-Lex CELEX
-identifier. As of the latest snapshot, 0 had been adopted or entered into force
+`on_time` (delivery vs the item's indicative timing). Of the 38 procedure
+references, 35 resolved against the EP API (3 return `not_found`; one of these,
+`2024/0094(NLE)`, appears in neither the EP API nor EUR-Lex and may be
+unresolvable). 37 of the 38 resolved to a EUR-Lex CELEX identifier. As of the
+latest snapshot, 0 had been adopted or entered into force
 - which is expected: the Annex IV references are all *old proposals the
 Commission plans to withdraw*, and they sit formally pending at first reading in
 Parliament (withdrawal is a Commission act, not an EP stage). This is the honest
 signal the dataset is designed to capture.
 
-The baseline corpus is a catalogue of 170 term procedures (all COD/CNS/NLE/APP
-dossiers for 2024-2026), flagged `is_in_agenda`, giving the denominator for
-"planned agenda vs total legislative activity".
+The baseline corpus is a catalogue of 169 distinct term procedures (all
+COD/CNS/NLE/APP dossiers for 2024-2026, one row per procedure; a procedure
+re-referenced under a second type is counted once), flagged `is_in_agenda`,
+giving the denominator for "planned agenda vs total legislative activity".
 
 ## Phasing and curation
 
-- **Phase 1 (automated):** Annex III/IV procedure status, the term corpus, and
-  the EUR-Lex CELEX cross-check. Fully reproducible from the API.
+- **Phase 1 (automated):** Annex IV procedure status (all 38 embedded
+  procedure references sit in Annex IV), the term corpus, and the EUR-Lex CELEX
+  cross-check. Replayable from the cached API responses; see the snapshot note
+  below.
 - **Phase 2 (curated):** Annex I new initiatives have no procedure number until
   tabled. The initiative names are now captured (e.g. "EU Space Act", "Digital
   Networks Act"), but these are *policy brand names* that do not reliably match
@@ -79,8 +84,10 @@ dossiers for 2024-2026), flagged `is_in_agenda`, giving the denominator for
   curated.
 
 This release ships **Phase 1**: the automated Annex IV status and term corpus,
-with the improved agenda spine. Annex I links, evaluation outcomes, and the
-commitment links are scaffolded for curation and marked forthcoming.
+with the improved agenda spine. Annex I links and evaluation outcomes are
+scaffolded for curation (`data/manual/`, keyed on the stable `wp_item_id`) and
+marked forthcoming; mission-letter commitment links are planned but not yet
+scaffolded.
 
 ## Reproducing
 
@@ -92,13 +99,24 @@ python -m pytest tests/ -v        # schema + counts + FK + monotonicity + parser
 python verify_readme.py           # verify the figures above against the CSVs
 ```
 
-Set `AGENDA_AS_OF=YYYY-MM-DD` to pin the snapshot date (used for reproducible
-runs and tests). Re-running step 04 on a later date appends a new dated snapshot
-to `procedure_status.csv`.
+The published outputs are a **frozen snapshot taken on 2026-06-22** (the
+`as_of_date` stamped in the status tables). The API response cache
+(`data/raw/`) is not part of the published repository, so a fresh clone
+re-fetches live data and will reflect the state of the EP API and EUR-Lex at
+run time, not reproduce this snapshot byte-for-byte. `AGENDA_AS_OF=YYYY-MM-DD`
+pins the snapshot date *label* for reproducible runs and tests; it does not pin
+the underlying data. Re-running step 04 on a later date appends a new dated
+snapshot to `procedure_status.csv`.
 
 ## Provenance and Licence
 
 Sources: EP Open Data API v2 (`data.europarl.europa.eu/api/v2`) and the EUR-Lex
-Cellar SPARQL endpoint. The status enum, parser, and curation provenance are
-documented in [CODEBOOK.md](CODEBOOK.md). Derived data released under CC-BY-4.0;
-pipeline code under Apache-2.0.
+Cellar SPARQL endpoint, both accessed 2026-06-22. Parliamentary data (c) European
+Union, sourced from the European Parliament Open Data Portal; EUR-Lex data (c)
+European Union, https://eur-lex.europa.eu. Both are reused under the Commission
+Decision 2011/833/EU reuse policy, which requires acknowledgement of the source;
+please retain this attribution in derived work. The status enum, parser, and
+curation provenance are documented in [CODEBOOK.md](CODEBOOK.md). Derived data
+released under CC-BY-4.0; pipeline code under Apache-2.0. All CSVs are encoded
+UTF-8 with BOM (Excel-friendly; `readr`/pandas handle it transparently, base R
+`read.csv` needs `fileEncoding = "UTF-8-BOM"`).

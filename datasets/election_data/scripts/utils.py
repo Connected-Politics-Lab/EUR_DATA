@@ -74,6 +74,15 @@ def _clean(value) -> str:
     return re.sub(r"\s+", " ", text)
 
 
+def _clean_link(text: str) -> str:
+    """
+    Strip coder-tool artefacts from a source link. Some cells carry a
+    chrome-extension PDF-viewer wrapper (chrome-extension://<id>/https://...);
+    the wrapped URL is the real source.
+    """
+    return re.sub(r"chrome-extension://[a-p]+/(?=https?://)", "", text)
+
+
 def _norm(text: str) -> str:
     """Normalise text for fuzzy matching (lowercase, strip accents/space)."""
     nfkd = unicodedata.normalize("NFKD", text or "")
@@ -129,7 +138,7 @@ def read_euandi_sheet(workbook: Path, sheet_name: str) -> Dict[str, List[Dict]]:
             "position_label": _clean(df.iat[r, config.COL_FINAL_POSITION]),
             "source_type": _clean(df.iat[r, config.COL_FINAL_SOURCE_TYPE]),
             "text_snippet": _clean(df.iat[r, config.COL_FINAL_SNIPPET]),
-            "source_link": _clean(df.iat[r, config.COL_FINAL_LINK]),
+            "source_link": _clean_link(_clean(df.iat[r, config.COL_FINAL_LINK])),
         })
 
     salience = []

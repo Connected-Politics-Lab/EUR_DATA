@@ -25,6 +25,13 @@ CC-BY-4.0. These derivatives are redistributed under CC-BY-4.0, but you must
   Application expert coding (euandi 2024 team, European University Institute),
   published under CC BY 4.0 via EUI Cadmus:
   <https://cadmus.eui.eu/entities/publication/6bd21956-5731-4a7b-be18-c24bba63a2aa>.
+- **`datasets/commission_formation/`** and **`datasets/agenda_implementation/`**
+  contain data sourced from the **European Parliament Open Data Portal**
+  (<https://data.europarl.europa.eu>) and **EUR-Lex**
+  (<https://eur-lex.europa.eu>), (c) European Union, reused under the
+  Commission's reuse policy (Decision 2011/833/EU), which requires
+  acknowledgement of the source. Please retain these acknowledgements in
+  derived work.
 
 Code in this repository (pipeline scripts and website source) is licensed
 separately under the [Apache License 2.0](LICENSE).

@@ -220,6 +220,17 @@ def parse_table_rows(rows: List[List], annex: str, logger) -> List[Dict]:
                 timing = type_of_act
             type_of_act = ""
 
+        # The Annex II table has only three populated cells (No. / Full Title /
+        # Indicative finalisation time), which the five-column mapping reads as
+        # item_number / policy_area / title. If the mapped title is itself a
+        # timing string, the real title is sitting in policy_area: shift it
+        # back and route the timing to indicative_timing.
+        if TIMING_RE.match(title) and policy_area and not TIMING_RE.match(policy_area):
+            if not timing:
+                timing = title.strip()
+            title = policy_area
+            policy_area = ""
+
         # Normalise the legal instrument to a single case so downstream counts
         # (e.g. REGULATION vs Regulation) are consistent.
         if type_of_act:

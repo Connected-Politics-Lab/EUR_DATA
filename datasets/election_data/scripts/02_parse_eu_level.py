@@ -27,6 +27,10 @@ def main():
         level="european",
         country_token="EU Member States",
         logger=logger,
+        # Statement 24 contains "EU Member States" with identical wording in
+        # every country edition (verified against the Irish catalogue), so the
+        # token heuristic false-positives on it.
+        non_templated=frozenset({24}),
     )
     print(f"eu_positions: {len(tables['positions'])} rows saved.")
     return tables["positions"]

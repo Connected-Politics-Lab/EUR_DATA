@@ -219,7 +219,7 @@ corpus; Annex I links and evaluation outcomes are scaffolded for manual curation
 | `agenda_items` | 190 | The agenda spine: every CWP item + 63 legislative commitments |
 | `procedure_references` | 38 | Procedure references parsed from the agenda |
 | `procedure_status` | 38 | Dated status snapshot per procedure (the core deliverable) |
-| `term_legislative_output` | 170 | Baseline corpus of all 2024-2026 term procedures |
+| `term_legislative_output` | 169 | Baseline corpus of all 2024-2026 term procedures |
 | `evaluations` | 37 | Annex II/III evaluation tracking (curated) |
 
 **Downloads:**

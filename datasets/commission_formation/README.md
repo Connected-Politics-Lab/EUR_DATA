@@ -277,7 +277,7 @@ All outputs saved as CSV + XLSX in `data/output/`.
 | Column | Type | Description |
 |--------|------|-------------|
 | `item_id` | str | WP001-format identifier |
-| `annex` | str | I (new) / II (REFIT) / III (withdrawals) / IV (repeals) |
+| `annex` | str | I (new) / II (REFIT) / III (interim evaluations) / IV (withdrawals/repeals) |
 | `item_number` | str | Numbered item within annex |
 | `title` | str | Initiative title |
 | `description` | str | Description or objective |

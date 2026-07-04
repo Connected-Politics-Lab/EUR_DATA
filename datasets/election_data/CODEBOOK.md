@@ -9,7 +9,8 @@ they are kept separate because their units of analysis differ (national
 parties/candidates vs European party families) and because the statement
 wording is templated differently (see Known Limitations).
 
-`Null` columns below give the count of empty cells in each table.
+All CSVs are encoded UTF-8 with BOM (Excel-friendly; `readr`/pandas handle it
+transparently, base R `read.csv` needs `fileEncoding = "UTF-8-BOM"`).
 
 ---
 
@@ -53,11 +54,11 @@ One row per entity x statement, **final placement only**. IE: 684 rows
 | `position_id` | string | **Primary key.** Sequential code (`IEP0001...` / `EUP0001...`). |
 | `party_id` | string | **Foreign key** -> `parties.party_id`. |
 | `statement_id` | int | **Foreign key** -> `statements.statement_id`. |
-| `position_label` | string | Likert label (`Completely disagree` ... `Completely agree`, or `No opinion`). Rarely blank where the coder left the final cell empty. |
+| `position_label` | string | Likert label (`Completely disagree` ... `Completely agree`, or `No opinion`). Rarely blank where the coder left the final cell empty (1 row in IE, `IEP0495`; 0 in EU). |
 | `position_numeric` | Int64 | -2..+2; blank for `No opinion` and missing labels. |
-| `source_type` | string | Evidence type backing the placement. Not a strict controlled vocabulary (see Known Limitations). Blank where `No opinion`. |
+| `source_type` | string | Evidence type backing the placement. Not a strict controlled vocabulary (see Known Limitations). Usually blank where `No opinion` (19 No-opinion rows carry source fields; see the snippet caveat below). |
 | `text_snippet` | string | Verbatim quote justifying the placement, where provided. |
-| `source_link` | string | URL of the cited source, where provided. |
+| `source_link` | string | Free-text citation of the source, where provided: usually a URL (sometimes several, space-separated), but also values like `Self-placement`, `Manifesto`, or a document title, and occasionally a page-reference prefix before the URL. Machine-parse as a URL field with care. |
 
 ---
 
@@ -111,8 +112,13 @@ Ireland positions to the EU statement catalogue (or vice versa).
   country/EP-specific. The two statement catalogues therefore differ in wording
   even where `statement_id` matches.
 - **Sparse `text_snippet` / `source_link`.** These are blank wherever the coder
-  recorded a position without attaching a quote or URL (and always blank for
-  `No opinion`).
+  recorded a position without attaching a quote or URL, and usually blank for
+  `No opinion` (19 No-opinion rows do carry source fields).
+- **Placeholder snippets for one candidate.** The independent candidate Punch
+  (`PUNCH`) has 15 `No opinion` rows whose `text_snippet` is the coder's note
+  "New Candidate - No public information available". Treat these as metadata
+  about evidence availability, not as substantive quotes: filter on
+  `position_numeric` (or exclude `No opinion`) rather than snippet presence.
 
 ---
 

@@ -46,6 +46,7 @@ def compute_actuals(d):
     a["evaluations_total"] = len(ev)
     a["status_rows"] = len(ps)
     a["delivered"] = int(ps["delivered"].sum())
+    a["ep_resolved"] = int((ps["status"] != "not_found").sum())
     return a
 
 
@@ -73,14 +74,16 @@ CHECK_DEFINITIONS = [
      r"(\d+)\s+legislative mission-letter", "Scope"),
 
     ("Resolvable refs (prose)", "refs_total",
-     r"(\d+) procedure\s+references resolved", "Status"),
+     r"Of the (\d+) procedure\s+references", "Status"),
+    ("EP-resolved refs (prose)", "ep_resolved",
+     r"references, (\d+) resolved against the EP API", "Status"),
     ("CELEX resolved (prose)", "celex_resolved",
-     r"(\d+) of them resolved to a EUR-Lex CELEX", "Status"),
+     r"(\d+) of the \d+ resolved to a EUR-Lex CELEX", "Status"),
     ("Delivered (prose)", "delivered",
      r"(\d+) had been adopted or entered into force", "Status"),
 
     ("Term corpus (prose)", "term_corpus",
-     r"catalogue of (\d+) term procedures", "Corpus"),
+     r"catalogue of (\d+) distinct term\s+procedures", "Corpus"),
     ("Evaluations (prose)", "evaluations_total",
      r"(\d+) Annex II/III evaluations", "Evaluations"),
 ]

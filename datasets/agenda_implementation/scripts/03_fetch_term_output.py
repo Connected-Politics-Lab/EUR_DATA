@@ -56,14 +56,28 @@ def main():
 
     rows = []
     counter = 0
+    seen_pids = set()
     for ptype in config.PROCEDURE_TYPES:
         for year in config.TERM_YEARS:
             for proc in _list_procedures(ptype, year, logger):
-                counter += 1
                 pid = str(proc.get("process_id", ""))
+                # A procedure re-referenced under a second type (e.g. a CNS
+                # relaunched as NLE) is listed by the API once per type; keep
+                # one row per procedure.
+                if pid and pid in seen_pids:
+                    continue
+                seen_pids.add(pid)
+                # label is usually a single ref string, but is a list when the
+                # procedure carries refs under more than one type; prefer the
+                # ref matching the type being listed.
+                label = proc.get("label", "")
+                if isinstance(label, list):
+                    matching = [l for l in label if f"({ptype})" in str(l)]
+                    label = (matching or label)[0]
+                counter += 1
                 rows.append({
                     "proc_output_id": f"TO{counter:05d}",
-                    "interinstitutional_ref": proc.get("label", ""),
+                    "interinstitutional_ref": label,
                     "process_id_ep": pid,
                     "procedure_type": ptype,
                     "year": year,

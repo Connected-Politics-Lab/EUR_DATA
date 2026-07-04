@@ -3,6 +3,7 @@
 Variable-level documentation for the five output tables in `data/output/`. The
 dataset links the planned agenda from the sibling `commission_formation` dataset
 to its real legislative fate, resolved against the EP Open Data API and EUR-Lex.
+All CSVs are encoded UTF-8 with BOM (Excel-friendly).
 
 ---
 
@@ -32,7 +33,7 @@ One row per (agenda item x interinstitutional procedure reference). 38 rows.
 |--------|------|-------------|
 | `procedure_ref_id` | string | **Primary key** (`PR0001`...). |
 | `agenda_item_id` | string | **FK** -> `agenda_items`. |
-| `interinstitutional_ref` | string | Canonical `YYYY/NNNN(TYPE)`, e.g. `2011/0314(CNS)`. |
+| `interinstitutional_ref` | string | Canonical `YYYY/NNNN(TYPE)`, e.g. `2011/0314(CNS)`. Split procedures carry a letter suffix on the number (`2018/0063B(COD)`). |
 | `process_id_ep` | string | EP API form, `YYYY-NNNN`, e.g. `2011-0314`. The API lookup key. |
 | `procedure_type` | enum | `COD`/`CNS`/`NLE`/`APP`/... |
 | `com_reference` | string | Originating `COM(YYYY)NNN` / `JOIN(YYYY)NNN` document, where present. |
@@ -79,7 +80,7 @@ denominator). One row per procedure.
 | Column | Type | Description |
 |--------|------|-------------|
 | `proc_output_id` | string | **Primary key** (`TO00001`...). |
-| `interinstitutional_ref` | string | `YYYY/NNNN(TYPE)`. |
+| `interinstitutional_ref` | string | `YYYY/NNNN(TYPE)`; may carry a split-procedure suffix (`2016/0400B(COD)`) or a renewal/amendment suffix (`2024/0101R(NLE)`, `...M(NLE)`). |
 | `process_id_ep` | string | EP API id. |
 | `procedure_type` | enum | COD/CNS/NLE/APP. |
 | `year` | int | Procedure year. |
@@ -94,8 +95,13 @@ agenda-linked procedures (table 3) in this release.
 ## 5. `evaluations.csv` - curated Annex II/III evaluations
 
 One row per Annex II (REFIT / fitness check) or Annex III (interim) evaluation.
-37 rows. Curated via `data/manual/annex_ii_evaluations.csv` (scaffolded on first
-run); uncoded items default to `delivered = False`.
+37 rows. Curated via `data/manual/annex_ii_evaluations.csv` (scaffolded on
+first run, keyed on the stable `wp_item_id`); uncoded items default to
+`delivered = False`. **In this release nothing has been curated yet**: every
+`swd_celex` and `published_date` is blank and every `delivered = False` is the
+uncoded default, not an observed non-delivery. `evaluation_type` is inferred
+from the item title (`fitness_check` / `interim_evaluation` / `evaluation`;
+`refit` is reserved for curation and does not occur in v1).
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -111,14 +117,15 @@ run); uncoded items default to `delivered = False`.
 
 ## Source-data reconciliation (important)
 
-The sibling `work_programme_items.csv` does not match its own codebook in two
-ways that materially affect this dataset; we build against the **actual** rows:
+Two aspects of the sibling `work_programme_items.csv` matter when joining
+across the two datasets:
 
-- **Annex III is evaluations, not withdrawals.** The sibling codebook calls
-  Annex III "pending proposals to be withdrawn", but the three live Annex III
-  rows are *interim/mid-term evaluations* (Horizon Europe, ERDF/CF/JTF, ESF+).
-  They carry no procedure number, so they are tracked as evaluations (table 5),
-  not procedures.
+- **Annex III is evaluations, not withdrawals.** The three Annex III rows are
+  *interim/mid-term evaluations* (Horizon Europe, ERDF/CF/JTF, ESF+). They
+  carry no procedure number, so they are tracked as evaluations (table 5), not
+  procedures. (Earlier sibling documentation mislabelled Annex III as
+  withdrawals; corrected upstream 2026-07-04, along with a column swap that had
+  placed Annex II titles in `policy_area` and timings in `title`.)
 - **Procedure references are interleaved with prose.** The COM and
   interinstitutional references in Annex III/IV live inside the `title` /
   `description` text, not in clean columns, so `02_parse_procedure_refs.py`
@@ -133,7 +140,9 @@ ways that materially affect this dataset; we build against the **actual** rows:
   `delivered`/`withdrawn` will read False/False until a withdrawal is confirmed
   (a future EUR-Lex-based check). Of 41 Annex IV items, 37 carry a resolvable
   procedure reference; the other 4 are "envisaged repeals" of in-force law,
-  identified by CELEX rather than a procedure number.
+  identified in the CWP text by CELEX number only. Those CELEX identifiers are
+  not extracted in this release, so the 4 items have no row in
+  `procedure_references.csv`.
 - **Annex I matching is curated.** New initiatives have no procedure number
   until tabled. Their names are now captured (e.g. "EU Space Act"), but these are
   policy brand names that do not reliably match the formal legal titles the EP

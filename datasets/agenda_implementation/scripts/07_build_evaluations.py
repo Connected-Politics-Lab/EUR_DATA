@@ -23,8 +23,12 @@ EVAL_COLS = [
     "evaluation_id", "agenda_item_id", "evaluation_type", "swd_celex",
     "published_date", "delivered", "as_of_date",
 ]
+# The worksheet is keyed on wp_item_id, not agenda_item_id: AIxxxx ids are
+# positional and renumber whenever the spine changes, so a committed worksheet
+# keyed on them silently mis-attaches curation after a re-run. WPxxx ids are
+# stable across spine rebuilds.
 WORKSHEET_COLS = [
-    "agenda_item_id", "title", "evaluation_type", "swd_celex",
+    "wp_item_id", "title", "evaluation_type", "swd_celex",
     "published_date", "delivered", "note",
 ]
 
@@ -57,7 +61,7 @@ def main():
 
     # Scaffold the curation worksheet if absent.
     if not config.ANNEX_II_EVALUATIONS_CSV.exists():
-        ws = evals[["agenda_item_id", "title", "evaluation_type"]].copy()
+        ws = evals[["wp_item_id", "title", "evaluation_type"]].copy()
         ws["swd_celex"] = ""
         ws["published_date"] = ""
         ws["delivered"] = ""
@@ -69,18 +73,25 @@ def main():
                     f"{config.ANNEX_II_EVALUATIONS_CSV.name} ({len(ws)} items)")
 
     # Ingest curated values, defaulting uncoded items to not-yet-delivered.
+    # Joined on the stable wp_item_id (see WORKSHEET_COLS note).
     curated = {}
     if config.ANNEX_II_EVALUATIONS_CSV.exists():
         cur = pd.read_csv(config.ANNEX_II_EVALUATIONS_CSV)
+        if "wp_item_id" not in cur.columns:
+            raise SystemExit(
+                f"{config.ANNEX_II_EVALUATIONS_CSV.name} has no wp_item_id "
+                "column: it predates the stable-key worksheet format. Delete "
+                "it and re-run to scaffold a fresh worksheet."
+            )
         for _, r in cur.iterrows():
-            curated[_s(r.get("agenda_item_id"))] = r
+            curated[_s(r.get("wp_item_id"))] = r
 
     rows = []
     counter = 0
     for _, item in evals.iterrows():
         counter += 1
         aid = item["agenda_item_id"]
-        c = curated.get(aid)
+        c = curated.get(_s(item["wp_item_id"]))
         delivered_raw = _s(c.get("delivered")) if c is not None else ""
         delivered = delivered_raw.lower() in ("true", "1", "yes", "y")
         rows.append({
