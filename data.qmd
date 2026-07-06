@@ -53,8 +53,11 @@ European Commission documents (mission letters, the Commission Work Programme
 :::
 
 ::: {.callout-note appearance="simple"}
-A citable DOI for this dataset is minted via Zenodo on each release. The DOI
-will appear here once the first release is published.
+Cite these datasets via the Zenodo concept DOI
+[10.5281/zenodo.21221494](https://doi.org/10.5281/zenodo.21221494), which
+always resolves to the latest release. Each release also receives its own
+version DOI (v1.0.0:
+[10.5281/zenodo.21221495](https://doi.org/10.5281/zenodo.21221495)).
 :::
 
 ### Explore the data

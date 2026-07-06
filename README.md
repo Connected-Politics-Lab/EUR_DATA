@@ -60,7 +60,11 @@ This repository is dual-licensed:
 
 If you use EUR_DATA, please cite it. See [CITATION.cff](CITATION.cff) or the
 "Cite this repository" link on GitHub. A DOI is minted for each release via
-Zenodo.
+Zenodo; the concept DOI
+[10.5281/zenodo.21221494](https://doi.org/10.5281/zenodo.21221494) always
+resolves to the latest release.
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21221494.svg)](https://doi.org/10.5281/zenodo.21221494)
 
 ## Acknowledgement
 
