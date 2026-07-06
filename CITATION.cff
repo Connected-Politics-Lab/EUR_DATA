@@ -11,14 +11,15 @@ abstract: >-
   parties and candidates and of EU-level party families for the June 2024
   European Parliament election; and (3) implementation tracking of the
   Commission's legislative agenda, resolved against the European Parliament Open
-  Data API and EUR-Lex.
+  Data API and EUR-Lex. Educational resources include module syllabi and nine
+  instructor-ready classroom exercise packs on EU politics.
 type: dataset
 authors:
   - family-names: Cross
     given-names: James
     orcid: "https://orcid.org/0000-0001-8042-1099"
     affiliation: "University College Dublin"
-version: 1.0.0
+version: 1.1.0
 date-released: "2026-07-06"
 doi: 10.5281/zenodo.21221494
 identifiers:
