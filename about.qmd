@@ -19,8 +19,8 @@ This website hosts three kinds of output:
 
 - **[Data](data.qmd)**: open, analysis-ready datasets on European political
   institutions, each with a codebook, reproducible pipeline code, and tests.
-- **[Teaching](oer.qmd)**: open educational resources, including module syllabi,
-  slides, and assessment materials.
+- **[Teaching](oer.qmd)**: open educational resources, including module syllabi
+  and instructor-ready in-class exercise packs.
 - **Code**: the full pipelines that build each dataset, on
   [GitHub](https://github.com/Connected-Politics-Lab/EUR_DATA).
 

@@ -35,7 +35,8 @@ Further datasets will be added as the project develops.
 
 - **[Data](data.qmd)**: dataset documentation, downloads, and interactive
   visualisations.
-- **[Teaching](oer.qmd)**: open syllabi, slides, and assessment materials.
+- **[Teaching](oer.qmd)**: open syllabi and instructor-ready in-class
+  exercise packs.
 - **[About](about.qmd)**: the project, its funding, and how to cite it.
 
 ### Licensing
