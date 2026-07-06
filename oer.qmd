@@ -33,15 +33,6 @@ quantitative methods and project-based work on real EU data.
 | 2024-2025 | [PDF](oer/syllabi/POL40970_202425.pdf) |
 | 2023-2024 | [PDF](oer/syllabi/POL40970_202324.pdf) |
 
-## Lecture slides
-
-Slide decks from the modules will be published here. *Coming soon.*
-
-## Assessment materials
-
-Anonymised project briefs and assessment templates, suitable for reuse in other
-courses, will be published here. *Coming soon.*
-
 ## Working with the data in teaching
 
 The [Commission Formation dataset](data.qmd) is designed for classroom use. The

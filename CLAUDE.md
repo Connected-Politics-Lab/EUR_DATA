@@ -28,7 +28,7 @@ EUR_DATA/                       # repo root (Pages serves from docs/)
 ├── CITATION.cff / .zenodo.json # Citation and Zenodo deposit metadata
 ├── datasets/
 │   └── commission_formation/   # Pipeline code, codebook, data/output/ (raw gitignored)
-├── oer/                        # Open educational resources (syllabi, slides, briefs)
+├── oer/                        # Open educational resources (syllabi)
 └── docs/                       # Rendered output (committed for GitHub Pages)
 ```
 
