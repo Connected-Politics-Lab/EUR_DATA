@@ -142,7 +142,7 @@ def fig_commitments():
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 
     by_type = cmt["commitment_type"].value_counts()
-    # Highlight the 11 trackable legislative pledges; mute the vague types.
+    # Highlight the trackable legislative pledges; mute the vague types.
     vague = {"other", "coordination"}
     colours = ["#C0392B" if t == "legislative"
                else "#A9BCD0" if t in vague else ACCENT for t in by_type.index]
@@ -151,9 +151,10 @@ def fig_commitments():
     axes[0].set_title("Commitments by type")
     axes[0].set_ylabel("Commitments")
     axes[0].tick_params(axis="x", rotation=25)
+    n_leg = int(by_type.get("legislative", 0))
     axes[0].text(0.97, 0.95,
-                 "Only 11 are explicitly\n'legislative' (red); most\nare vague or"
-                 " non-legislative\n(muted).",
+                 f"{n_leg} are explicitly\n'legislative' (red); the vague\n"
+                 "types are muted.",
                  transform=axes[0].transAxes, ha="right", va="top", fontsize=8.5,
                  bbox=dict(boxstyle="round", fc="#F4F6F8", ec="#CCC"))
 
@@ -175,17 +176,18 @@ def fig_work_programme():
     wp = pd.read_csv(OUT / "work_programme_items.csv")
     fig, axes = plt.subplots(1, 2, figsize=(13, 4.8))
 
-    annex_names = {"I": "I\nNew", "II": "II\nREFIT", "III": "III\nEval.", "IV": "IV\nRepeal"}
-    ac = wp["annex"].value_counts().reindex(["I", "II", "III", "IV"]).fillna(0)
+    annex_names = {"I": "I\nNew", "II": "II\nEval.", "IV": "IV\nWithdraw", "V": "V\nRepeal"}
+    ac = wp["annex"].value_counts().reindex(["I", "II", "IV", "V"]).fillna(0)
     bars = axes[0].bar([annex_names[a] for a in ac.index], ac.values, color=ACCENT)
     _bar_labels(axes[0], bars)
-    axes[0].set_title("Work-programme items by annex")
+    axes[0].set_title("Work-programme items by annex\n(official Annex III, pending proposals, out of scope)")
     axes[0].set_ylabel("Items")
 
-    iv = (wp[wp["annex"] == "IV"]["type_of_act"].str.title().value_counts())
-    bars = axes[1].bar(iv.index, iv.values, color="#A56B8A")
+    ivv = (wp[wp["annex"].isin(["IV", "V"])]["type_of_act"]
+           .str.title().value_counts())
+    bars = axes[1].bar(ivv.index, ivv.values, color="#A56B8A")
     _bar_labels(axes[1], bars)
-    axes[1].set_title("Annex IV repeals by legal instrument")
+    axes[1].set_title("Annex IV withdrawals and Annex V repeals\nby legal instrument")
     axes[1].set_ylabel("Items")
     axes[1].tick_params(axis="x", rotation=20)
 

@@ -17,26 +17,33 @@ duplicated.
 
 | File | Rows | Description |
 |------|------|-------------|
-| `agenda_items.csv` | 190 | The agenda spine - every CWP item + legislative commitment |
+| `agenda_items.csv` | 193 | The agenda spine - every CWP item + legislative commitment |
 | `procedure_references.csv` | 38 | Interinstitutional procedure references parsed from the agenda |
 | `procedure_status.csv` | 38 | **Core deliverable**: dated status snapshot per procedure |
 | `term_legislative_output.csv` | 169 | Baseline corpus of all term procedures (the denominator) |
-| `evaluations.csv` | 37 | Curated Annex II/III evaluation tracking |
+| `evaluations.csv` | 37 | Annex II evaluation tracking (curation forthcoming) |
 
 ## Scope
 
-The dataset tracks **190 tracked agenda items**: the 127 CWP 2025 work-programme
-items plus the 63 legislative mission-letter commitments. By source:
+The dataset tracks **193 tracked agenda items**: the 130 CWP 2025 work-programme
+items plus the 63 legislative mission-letter commitments. By source, following
+the five-annex structure of the official COM(2025) 45 annexes document:
 
-- **49 new initiatives** (CWP Annex I),
-- 34 REFIT evaluations (Annex II),
-- 3 interim evaluations (Annex III),
-- **41 repeals/withdrawals** of obsolete proposals (Annex IV),
+- **52 new initiatives** (CWP Annex I),
+- 37 evaluations and fitness checks (Annex II, the annual plan on evaluations),
+- **37 withdrawals** of pending proposals (Annex IV),
+- 4 envisaged repeals of acts already in force (Annex V),
 - **63 legislative mission-letter** commitments.
 
-The ~1,000 non-legislative mission-letter pledges (coordination, reports, vague
-"other") are deliberately out of scope: they have no resolvable legislative
-identifier and cannot be tracked as a pipeline.
+The official CWP Annex III (the list of pending priority proposals) is
+deliberately not an agenda scope here: it is out of scope of the sibling
+`commission_formation` dataset, and the procedures it lists are covered by this
+dataset's term corpus. Note the Annex IV / Annex V distinction: Annex IV
+*withdraws pending proposals* (which therefore carry procedure references),
+while Annex V *repeals acts in force* (identified by CELEX only). The ~1,000
+non-legislative mission-letter pledges (coordination, reports, vague "other")
+are deliberately out of scope: they have no resolvable legislative identifier
+and cannot be tracked as a pipeline.
 
 ## How implementation is measured
 
@@ -74,11 +81,12 @@ giving the denominator for "planned agenda vs total legislative activity".
   tabled. The initiative names are now captured (e.g. "EU Space Act", "Digital
   Networks Act"), but these are *policy brand names* that do not reliably match
   the formal legal titles the EP uses for procedures, so automated linking is not
-  dependable (an opt-in fuzzy suggester, `AGENDA_FUZZY=1`, writes a low-confidence
-  review aid to `data/manual/annex_i_match_candidates.csv`). Authoritative links
+  dependable (an opt-in fuzzy suggester, `AGENDA_FUZZY=1`, writes a review aid to
+  `data/manual/annex_i_match_candidates.csv`; its `similarity_score` is a raw
+  token-set ratio, not a validated match confidence). Authoritative links
   must be curated by hand in `data/manual/annex_i_overrides.csv` (scaffolded on
   first run); the pipeline then resolves their status.
-- **Phase 3 (curated):** the 37 Annex II/III evaluations are tracked in
+- **Phase 3 (curated):** the 37 Annex II evaluations are tracked in
   `data/manual/annex_ii_evaluations.csv` (scaffolded), since the Commission
   evaluation register has no public API; `delivered` defaults to False until
   curated.
@@ -91,10 +99,15 @@ scaffolded.
 
 ## Reproducing
 
+Requires Python 3.9 or newer (tested with Python 3.12.11; see
+`requirements.txt` for the tested package versions).
+
 ```bash
 pip install -r requirements.txt
 python run_pipeline.py            # steps 01-07; network steps cache to data/raw/
-python run_pipeline.py --offline  # re-run from cache, no network
+python run_pipeline.py --offline  # skips the network steps (3, 4, 6); previously
+                                  #   built outputs are left in place
+python run_pipeline.py --refresh  # ignore the cache and re-fetch (new snapshot)
 python -m pytest tests/ -v        # schema + counts + FK + monotonicity + parser
 python verify_readme.py           # verify the figures above against the CSVs
 ```
@@ -106,7 +119,9 @@ re-fetches live data and will reflect the state of the EP API and EUR-Lex at
 run time, not reproduce this snapshot byte-for-byte. `AGENDA_AS_OF=YYYY-MM-DD`
 pins the snapshot date *label* for reproducible runs and tests; it does not pin
 the underlying data. Re-running step 04 on a later date appends a new dated
-snapshot to `procedure_status.csv`.
+snapshot to `procedure_status.csv`; to take a new snapshot on a later date, run
+with `--refresh` (or delete `data/raw/`) so cached API responses are not
+re-stamped with a new `as_of_date`.
 
 ## Provenance and Licence
 

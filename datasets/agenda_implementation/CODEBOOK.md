@@ -9,13 +9,13 @@ All CSVs are encoded UTF-8 with BOM (Excel-friendly).
 
 ## 1. `agenda_items.csv` - the agenda spine
 
-One row per tracked agenda item (190: 127 CWP work-programme items + 63
+One row per tracked agenda item (193: 130 CWP work-programme items + 63
 legislative mission-letter commitments).
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `agenda_item_id` | string | **Primary key** (`AI0001`...). |
-| `source_scope` | enum | `cwp_annex_i` / `cwp_annex_ii` / `cwp_annex_iii` / `cwp_annex_iv` / `mission_letter`. |
+| `source_scope` | enum | `cwp_annex_i` / `cwp_annex_ii` / `cwp_annex_iv` / `cwp_annex_v` / `mission_letter`. (There is no `cwp_annex_iii`: the official Annex III, pending priority proposals, is out of scope and covered by the term corpus.) |
 | `wp_item_id` | string | **FK** -> `commission_formation/.../work_programme_items.csv:item_id`. Blank for mission-letter rows. |
 | `commitment_id` | string | **FK** -> `mission_letter_commitments.csv:commitment_id`. Blank for CWP rows. |
 | `title` | string | Item title (or commitment short text). |
@@ -80,7 +80,7 @@ denominator). One row per procedure.
 | Column | Type | Description |
 |--------|------|-------------|
 | `proc_output_id` | string | **Primary key** (`TO00001`...). |
-| `interinstitutional_ref` | string | `YYYY/NNNN(TYPE)`; may carry a split-procedure suffix (`2016/0400B(COD)`) or a renewal/amendment suffix (`2024/0101R(NLE)`, `...M(NLE)`). |
+| `interinstitutional_ref` | string | `YYYY/NNNN(TYPE)`; may carry a renewal suffix (`2024/0101R(NLE)`) or an amendment suffix (`2024/0159M(NLE)`). |
 | `process_id_ep` | string | EP API id. |
 | `procedure_type` | enum | COD/CNS/NLE/APP. |
 | `year` | int | Procedure year. |
@@ -92,16 +92,19 @@ agenda-linked procedures (table 3) in this release.
 
 ---
 
-## 5. `evaluations.csv` - curated Annex II/III evaluations
+## 5. `evaluations.csv` - curated Annex II evaluations
 
-One row per Annex II (REFIT / fitness check) or Annex III (interim) evaluation.
-37 rows. Curated via `data/manual/annex_ii_evaluations.csv` (scaffolded on
-first run, keyed on the stable `wp_item_id`); uncoded items default to
-`delivered = False`. **In this release nothing has been curated yet**: every
-`swd_celex` and `published_date` is blank and every `delivered = False` is the
-uncoded default, not an observed non-delivery. `evaluation_type` is inferred
-from the item title (`fitness_check` / `interim_evaluation` / `evaluation`;
-`refit` is reserved for curation and does not occur in v1).
+One row per Annex II evaluation or fitness check. 37 rows (the CWP 2025
+"Annual plan on evaluations and fitness checks"). Curated via
+`data/manual/annex_ii_evaluations.csv` (scaffolded on first run, keyed on the
+stable `wp_item_id`); uncoded items default to `delivered = False`. **In this
+release nothing has been curated yet**: every `swd_celex` and `published_date`
+is blank and every `delivered = False` is the uncoded default, not an observed
+non-delivery. `evaluation_type` is inferred from the item title as follows:
+titles containing "fitness check" -> `fitness_check`; "interim" or "mid-term"
+-> `interim_evaluation`; everything else, including ex-post evaluations, ->
+`evaluation` (the generic type). `refit` is reserved for curation and does not
+occur in v1.
 
 | Column | Type | Description |
 |--------|------|-------------|
@@ -120,16 +123,22 @@ from the item title (`fitness_check` / `interim_evaluation` / `evaluation`;
 Two aspects of the sibling `work_programme_items.csv` matter when joining
 across the two datasets:
 
-- **Annex III is evaluations, not withdrawals.** The three Annex III rows are
-  *interim/mid-term evaluations* (Horizon Europe, ERDF/CF/JTF, ESF+). They
-  carry no procedure number, so they are tracked as evaluations (table 5), not
-  procedures. (Earlier sibling documentation mislabelled Annex III as
-  withdrawals; corrected upstream 2026-07-04, along with a column swap that had
-  placed Annex II titles in `policy_area` and timings in `title`.)
+- **The annex structure follows the official five-annex COM(2025) 45 annexes
+  document** (corrected upstream 2026-07-06): Annex I *new initiatives* (52),
+  Annex II *annual plan on evaluations and fitness checks* (37, including the
+  interim/mid-term evaluations formerly mislabelled as a separate "Annex III"),
+  Annex IV *withdrawals of pending proposals* (37), and Annex V *envisaged
+  repeals of acts in force* (4). The official Annex III (pending priority
+  proposals) is deliberately out of the sibling's scope; the procedures it
+  lists are covered by this dataset's term corpus. The withdrawal-vs-repeal
+  distinction matters: Annex IV items are pending *proposals* with procedure
+  references; Annex V items are in-force *acts* identified by CELEX only.
 - **Procedure references are interleaved with prose.** The COM and
-  interinstitutional references in Annex III/IV live inside the `title` /
-  `description` text, not in clean columns, so `02_parse_procedure_refs.py`
-  extracts them with a regex anchored on the parenthesised procedure-type token.
+  interinstitutional references for the Annex IV withdrawals live inside the
+  `title` / `description` text (the description carries them as "References:
+  ... Reasons for withdrawal: ..."), not in clean columns, so
+  `02_parse_procedure_refs.py` extracts them with a regex anchored on the
+  parenthesised procedure-type token.
 
 ## Known limitations
 
@@ -138,10 +147,11 @@ across the two datasets:
   `ep_1st_read`); it does not record the Commission's withdrawal. So a "stuck at
   first reading" status for an Annex IV item is the expected signal, and
   `delivered`/`withdrawn` will read False/False until a withdrawal is confirmed
-  (a future EUR-Lex-based check). Of 41 Annex IV items, 37 carry a resolvable
-  procedure reference; the other 4 are "envisaged repeals" of in-force law,
-  identified in the CWP text by CELEX number only. Those CELEX identifiers are
-  not extracted in this release, so the 4 items have no row in
+  (a future EUR-Lex-based check). The 37 Annex IV items all carry resolvable
+  procedure references (38 references in total, as one item carries two). The
+  4 Annex V items are "envisaged repeals" of in-force law, identified in the
+  CWP text by CELEX number only; those CELEX identifiers are not extracted in
+  this release, so the Annex V items have no row in
   `procedure_references.csv`.
 - **Annex I matching is curated.** New initiatives have no procedure number
   until tabled. Their names are now captured (e.g. "EU Space Act"), but these are

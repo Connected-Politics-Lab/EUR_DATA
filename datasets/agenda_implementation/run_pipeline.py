@@ -7,9 +7,13 @@ Usage:
     python run_pipeline.py --step 4    # Run only step 4
     python run_pipeline.py --from 3    # Run from step 3 onwards
     python run_pipeline.py --offline   # Skip the network steps (3, 4, 6)
+    python run_pipeline.py --refresh   # Ignore cached API responses; re-fetch
 
 Network steps (03 term output, 04 procedure status, 06 EUR-Lex enrichment)
-cache to data/raw/, so re-runs are cheap and replayable offline.
+cache to data/raw/, so re-runs are cheap and replayable offline. To take a
+genuinely new snapshot on a later date, pass --refresh (or delete data/raw/):
+otherwise the cached responses would simply be re-stamped with a new
+as_of_date.
 """
 
 import argparse
@@ -20,6 +24,7 @@ from typing import Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from scripts import utils
 from scripts.utils import setup_logging, ensure_dirs
 
 
@@ -68,10 +73,19 @@ def main():
                         help="Start from this step number")
     parser.add_argument("--offline", action="store_true",
                         help="Skip the network steps (3, 4, 6)")
+    parser.add_argument("--refresh", action="store_true",
+                        help="Ignore cached API responses and re-fetch "
+                             "(take a genuinely new snapshot)")
     args = parser.parse_args()
 
     logger = setup_logging("pipeline")
     ensure_dirs()
+
+    if args.refresh and args.offline:
+        parser.error("--refresh and --offline are mutually exclusive")
+    if args.refresh:
+        utils.set_refresh(True)
+        logger.info("Refresh mode: ignoring cached API responses (re-fetching).")
 
     logger.info("=" * 60)
     logger.info("Agenda-Implementation Dataset Pipeline")

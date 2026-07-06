@@ -14,19 +14,29 @@ the study of EU politics with hands-on data analytics.
 
 ### Available datasets
 
-- **[Commission Formation (2024-2029)](data.qmd)** — the formation of the second
-  von der Leyen Commission: the College, mission-letter commitments, confirmation
-  hearings, the investiture vote, the 2025 Work Programme, and a formation
-  timeline. Six interlinked tables, 1,588 rows in total.
+- **[Commission Formation (2024-2029)](data.qmd#commission-formation-2024-2029)**:
+  the formation of the second von der Leyen Commission: the College,
+  mission-letter commitments, confirmation hearings, the investiture vote, the
+  2025 Work Programme, and a formation timeline. Six interlinked tables,
+  1,941 rows in total.
+- **[euandi 2024 (European Parliament election)](data.qmd#euandi-2024-european-parliament-election)**:
+  Voting Advice Application expert coding for the June 2024 EP election, for
+  Irish parties and candidates and for the EU-level party families. Eight
+  tables: 19 Irish entities and 10 EU party families placed on 36 policy
+  statements.
+- **[Commission Agenda Implementation](data.qmd#commission-agenda-implementation)**:
+  how far the Commission has delivered the legislative agenda it set itself,
+  tracked as a dated time series against the EP Open Data API and EUR-Lex.
+  193 agenda items, 38 tracked procedures, and a 169-procedure term corpus.
 
-More datasets will be added as the project develops.
+Further datasets will be added as the project develops.
 
 ### Explore
 
-- **[Data](data.qmd)** — dataset documentation, downloads, and interactive
+- **[Data](data.qmd)**: dataset documentation, downloads, and interactive
   visualisations.
-- **[Teaching](oer.qmd)** — open syllabi, slides, and assessment materials.
-- **[About](about.qmd)** — the project, its funding, and how to cite it.
+- **[Teaching](oer.qmd)**: open syllabi, slides, and assessment materials.
+- **[About](about.qmd)**: the project, its funding, and how to cite it.
 
 ### Licensing
 

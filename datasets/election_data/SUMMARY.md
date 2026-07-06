@@ -23,7 +23,8 @@ every statement (columns), coloured by position.
   Party, Ireland First) sits at the top, the **radical left** (Rabharta Glas,
   Solidarity-People Before Profit, Clare Daly, Sinn Féin) at the bottom, with
   Fianna Fáil and Fine Gael in the centre. The immigration and EU items
-  (statements 9-11 and the right-hand columns) flip cleanly between the two ends.
+  (statements 9 and 11, and the right-hand columns) flip cleanly between the
+  two ends.
 - **Independent candidates are sparser** (more grey): several declined to take a
   position on many statements, so their rows carry more *No opinion / missing*.
 - Overall **79% of Irish placements are substantive** (a position rather than
@@ -98,7 +99,8 @@ erDiagram
 ```
 
 The `eu_*` tables share this schema. Ireland and EU-level are parallel datasets;
-`statement_id` is shared by number but the wording differs.
+`statement_id` is shared by number, and the wording is identical for 32 of the
+36 statements (only the country-templated ids 11, 15, 34 and 36 differ).
 
 ## Reproducing
 

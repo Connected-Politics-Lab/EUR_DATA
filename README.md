@@ -17,7 +17,9 @@ EUR_DATA/
 ├── index.qmd, data.qmd, about.qmd, oer.qmd   # Quarto website source
 ├── docs/                                      # Rendered site (GitHub Pages)
 ├── datasets/
-│   └── commission_formation/                  # Dataset pipeline, codebook, and outputs
+│   ├── commission_formation/                  # Dataset pipeline, codebook, and outputs
+│   ├── election_data/                         # euandi 2024 VAA coding (Ireland + EU-level)
+│   └── agenda_implementation/                 # Legislative-agenda implementation tracking
 ├── oer/                                        # Open educational resources
 ├── LICENSE                                     # Apache-2.0 (code)
 ├── CITATION.cff                                # How to cite
@@ -28,7 +30,9 @@ EUR_DATA/
 
 | Dataset | Description | Docs |
 |---------|-------------|------|
-| **Commission Formation (2024-2029)** | The formation of the von der Leyen II Commission: the College, mission-letter commitments, confirmation hearings, the investiture vote, the 2025 Work Programme, and a formation timeline. | [README](datasets/commission_formation/README.md) · [Codebook](datasets/commission_formation/CODEBOOK.md) |
+| **Commission Formation (2024-2029)** | The formation of the von der Leyen II Commission: the College (27), mission-letter commitments (1057), confirmation hearings (26), the investiture vote (688 MEPs), the 2025 Work Programme (130 items), and a formation timeline (13 events). | [README](datasets/commission_formation/README.md) · [Codebook](datasets/commission_formation/CODEBOOK.md) |
+| **euandi 2024 (EP election)** | euandi 2024 Voting Advice Application coding for the June 2024 European Parliament election: 19 Irish parties and candidates and 10 EU-level party families placed on 36 policy statements, with salience. | [README](datasets/election_data/README.md) · [Codebook](datasets/election_data/CODEBOOK.md) |
+| **Commission Agenda Implementation** | Implementation tracking of the Commission's legislative agenda: 193 agenda items (130 CWP 2025 items + 63 legislative mission-letter commitments), 38 tracked procedures with dated status snapshots, and a 169-procedure term corpus. | [README](datasets/agenda_implementation/README.md) · [Codebook](datasets/agenda_implementation/CODEBOOK.md) |
 
 Each dataset ships with reproducible pipeline code, a column-level codebook, and
 a test suite. Published outputs live under `data/output/` as CSV and XLSX.

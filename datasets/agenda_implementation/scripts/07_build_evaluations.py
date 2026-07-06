@@ -1,7 +1,8 @@
 """
 07_build_evaluations.py
-Build the curated evaluations table for the CWP Annex II (REFIT / fitness
-checks) and Annex III (interim/mid-term evaluations) items.
+Build the curated evaluations table for the CWP Annex II items (the annual
+plan on evaluations and fitness checks, including the interim/mid-term
+evaluations).
 
 These are evaluations, not legislative procedures, so they have no EP procedure
 stage: "implemented" means the evaluation/SWD was published. There is no public
@@ -40,10 +41,17 @@ def _s(v) -> str:
 
 
 def _infer_type(title: str) -> str:
+    """Infer evaluation_type from the item title (documented in CODEBOOK.md).
+
+    "fitness check" -> fitness_check; "interim" / "mid-term" ->
+    interim_evaluation; anything else (including ex-post evaluations) ->
+    evaluation. "refit" is checked for completeness but does not occur in the
+    Annex II titles; the refit type is otherwise reserved for curation.
+    """
     t = title.lower()
     if "fitness check" in t:
         return "fitness_check"
-    if "interim" in t or "mid-term" in t or "ex-post" in t or "ex post" in t:
+    if "interim" in t or "mid-term" in t:
         return "interim_evaluation"
     if "refit" in t:
         return "refit"
@@ -56,7 +64,7 @@ def main():
     today = as_of_date()
 
     agenda = pd.read_csv(config.OUTPUT_DIR / "agenda_items.csv")
-    evals = agenda[agenda["source_scope"].isin(["cwp_annex_ii", "cwp_annex_iii"])].copy()
+    evals = agenda[agenda["source_scope"] == "cwp_annex_ii"].copy()
     evals["evaluation_type"] = evals["title"].fillna("").map(_infer_type)
 
     # Scaffold the curation worksheet if absent.

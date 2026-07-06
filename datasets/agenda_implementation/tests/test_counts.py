@@ -28,16 +28,16 @@ class TestDeterministicCounts:
 
     def test_agenda_items_total(self):
         df = load_csv("agenda_items.csv")
-        # 113 CWP items + 11 legislative mission-letter commitments.
-        assert len(df) == 190, f"Expected 190 agenda items, got {len(df)}"
+        # 130 CWP items + 63 legislative mission-letter commitments.
+        assert len(df) == 193, f"Expected 193 agenda items, got {len(df)}"
 
     def test_agenda_items_by_scope(self):
         df = load_csv("agenda_items.csv")
         counts = df["source_scope"].value_counts().to_dict()
-        assert counts.get("cwp_annex_i") == 49
-        assert counts.get("cwp_annex_ii") == 34
-        assert counts.get("cwp_annex_iii") == 3
-        assert counts.get("cwp_annex_iv") == 41
+        assert counts.get("cwp_annex_i") == 52
+        assert counts.get("cwp_annex_ii") == 37
+        assert counts.get("cwp_annex_iv") == 37
+        assert counts.get("cwp_annex_v") == 4
         assert counts.get("mission_letter") == 63
 
     def test_procedure_refs_all_have_process_id(self):
@@ -45,9 +45,9 @@ class TestDeterministicCounts:
         assert len(df) >= 37, f"Expected >=37 parsed refs, got {len(df)}"
         assert df["process_id_ep"].notna().all(), "Some refs lack a process_id_ep"
 
-    def test_evaluations_cover_annex_ii_iii(self):
+    def test_evaluations_cover_annex_ii(self):
         df = load_csv("evaluations.csv")
-        assert len(df) == 37, f"Expected 37 evaluations (34 II + 3 III), got {len(df)}"
+        assert len(df) == 37, f"Expected 37 evaluations (Annex II), got {len(df)}"
 
 
 class TestLiveCorpus:

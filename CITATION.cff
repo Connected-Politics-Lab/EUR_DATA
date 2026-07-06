@@ -18,7 +18,11 @@ authors:
     given-names: James
     orcid: "https://orcid.org/0000-0001-8042-1099"
     affiliation: "University College Dublin"
-license: CC-BY-4.0
+version: 1.0.0
+date-released: "2026-07-06"
+license:
+  - CC-BY-4.0
+  - Apache-2.0
 repository-code: "https://github.com/Connected-Politics-Lab/EUR_DATA"
 url: "https://connected-politics-lab.github.io/EUR_DATA/"
 keywords:

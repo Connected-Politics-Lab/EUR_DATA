@@ -1,5 +1,6 @@
 """
-Verify every numerical claim in README.md against the actual CSV data.
+Verify every numerical claim in README.md, CODEBOOK.md and SUMMARY.md
+against the actual CSV data.
 
 Usage:
     python verify_readme.py          # report only
@@ -16,7 +17,12 @@ import pandas as pd
 
 from config import BASE_DIR, OUTPUT_DIR
 
-README_PATH = BASE_DIR / "README.md"
+# Documents whose quantitative claims are verified.
+DOC_PATHS = {
+    "README": BASE_DIR / "README.md",
+    "CODEBOOK": BASE_DIR / "CODEBOOK.md",
+    "SUMMARY": BASE_DIR / "SUMMARY.md",
+}
 
 
 def load_data() -> Dict[str, pd.DataFrame]:
@@ -26,6 +32,20 @@ def load_data() -> Dict[str, pd.DataFrame]:
             key = f"{prefix}_{table}"
             data[key] = pd.read_csv(OUTPUT_DIR / f"{key}.csv")
     return data
+
+
+def _substantive_pct(positions: pd.DataFrame) -> int:
+    """Share of placements with a substantive position: a label that is
+    present (notna) and not "No opinion". Strict: NaN labels do not count."""
+    labels = positions["position_label"]
+    return round((labels.notna() & (labels != "No opinion")).mean() * 100)
+
+
+def _no_opinion_with_source(positions: pd.DataFrame) -> int:
+    """No-opinion rows that nevertheless carry at least one source field."""
+    noop = positions[positions["position_label"] == "No opinion"]
+    src_cols = ["source_type", "text_snippet", "source_link"]
+    return int(noop[src_cols].notna().any(axis=1).sum())
 
 
 def compute_actuals(d: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
@@ -40,17 +60,22 @@ def compute_actuals(d: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     a["ie_statements"] = len(d["ie_statements"])
     a["ie_positions"] = len(ipo)
     a["ie_salience"] = len(isa)
-    a["ie_coded_pct"] = round((ipo["position_label"] != "No opinion").mean() * 100)
+    a["ie_coded_pct"] = _substantive_pct(ipo)
+    a["ie_noop_with_source"] = _no_opinion_with_source(ipo)
 
     # EU-level
     a["eu_entities"] = len(eup)
     a["eu_statements"] = len(d["eu_statements"])
     a["eu_positions"] = len(epo)
     a["eu_salience"] = len(esa)
-    a["eu_coded_pct"] = round((epo["position_label"] != "No opinion").mean() * 100)
+    a["eu_coded_pct"] = _substantive_pct(epo)
+    a["eu_noop_with_source"] = _no_opinion_with_source(epo)
 
     # Combined
     a["total_positions"] = len(ipo) + len(epo)
+    a["total_noop_with_source"] = (
+        a["ie_noop_with_source"] + a["eu_noop_with_source"]
+    )
     return a
 
 
@@ -58,59 +83,116 @@ def _int(s: str) -> int:
     return int(s.replace(",", ""))
 
 
-# (check_name, actual_key, pattern, group_index, transform, section)
+# (doc, check_name, actual_key, pattern, group_index, transform, section)
 CHECK_DEFINITIONS = [
+    # ---------------- README.md ----------------
     # Dataset-at-a-glance row counts (Ireland)
-    ("ie_parties.csv rows (glance)", "ie_entities",
+    ("README", "ie_parties.csv rows (glance)", "ie_entities",
      r"\| `ie_parties\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("ie_statements.csv rows (glance)", "ie_statements",
+    ("README", "ie_statements.csv rows (glance)", "ie_statements",
      r"\| `ie_statements\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("ie_positions.csv rows (glance)", "ie_positions",
+    ("README", "ie_positions.csv rows (glance)", "ie_positions",
      r"\| `ie_positions\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("ie_salience.csv rows (glance)", "ie_salience",
+    ("README", "ie_salience.csv rows (glance)", "ie_salience",
      r"\| `ie_salience\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
     # Dataset-at-a-glance row counts (EU)
-    ("eu_parties.csv rows (glance)", "eu_entities",
+    ("README", "eu_parties.csv rows (glance)", "eu_entities",
      r"\| `eu_parties\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("eu_statements.csv rows (glance)", "eu_statements",
+    ("README", "eu_statements.csv rows (glance)", "eu_statements",
      r"\| `eu_statements\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("eu_positions.csv rows (glance)", "eu_positions",
+    ("README", "eu_positions.csv rows (glance)", "eu_positions",
      r"\| `eu_positions\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
-    ("eu_salience.csv rows (glance)", "eu_salience",
+    ("README", "eu_salience.csv rows (glance)", "eu_salience",
      r"\| `eu_salience\.csv` \| (\d+) \|", 1, _int, "Row Counts"),
 
     # Ireland prose
-    ("Ireland entities (prose)", "ie_entities",
+    ("README", "Ireland entities (prose)", "ie_entities",
      r"(\d+) coded entities", 1, _int, "Ireland"),
-    ("Ireland parties (prose)", "ie_parties_only",
+    ("README", "Ireland parties (prose)", "ie_parties_only",
      r"(\d+) national parties", 1, _int, "Ireland"),
-    ("Ireland independents (prose)", "ie_independents",
+    ("README", "Ireland independents (prose)", "ie_independents",
      r"(\d+) independent candidates", 1, _int, "Ireland"),
-    ("Ireland positions (prose)", "ie_positions",
+    ("README", "Ireland positions (prose)", "ie_positions",
      r"(\d+)\s+party-statement positions", 1, _int, "Ireland"),
-    ("Ireland coded pct (prose)", "ie_coded_pct",
+    ("README", "Ireland coded pct (prose)", "ie_coded_pct",
      r"(\d+)%\s+of\s+Irish placements", 1, _int, "Ireland"),
 
     # EU prose
-    ("EU families (prose)", "eu_entities",
+    ("README", "EU families (prose)", "eu_entities",
      r"(\d+) EU-level party families", 1, _int, "EU-level"),
-    ("EU positions (prose)", "eu_positions",
+    ("README", "EU positions (prose)", "eu_positions",
      r"(\d+)\s+family-statement positions", 1, _int, "EU-level"),
-    ("EU coded pct (prose)", "eu_coded_pct",
+    ("README", "EU coded pct (prose)", "eu_coded_pct",
      r"(\d+)%\s+of\s+EU-level placements", 1, _int, "EU-level"),
 
     # Common battery / combined
-    ("Statements per sheet", "ie_statements",
+    ("README", "Statements per sheet", "ie_statements",
      r"(\d+) policy statements", 1, _int, "Coding Scheme"),
-    ("Total positions", "total_positions",
+    ("README", "Total positions", "total_positions",
      r"(\d+) total placements", 1, _int, "Coding Scheme"),
+
+    # ---------------- CODEBOOK.md ----------------
+    # Parties table
+    ("CODEBOOK", "IE entity rows", "ie_entities",
+     r"IE: (\d+) rows \((\d+) parties \+ (\d+) independent candidates\)\. "
+     r"EU: (\d+) rows\.", 1, _int, "Parties"),
+    ("CODEBOOK", "IE parties split", "ie_parties_only",
+     r"IE: (\d+) rows \((\d+) parties \+ (\d+) independent candidates\)\. "
+     r"EU: (\d+) rows\.", 2, _int, "Parties"),
+    ("CODEBOOK", "IE independents split", "ie_independents",
+     r"IE: (\d+) rows \((\d+) parties \+ (\d+) independent candidates\)\. "
+     r"EU: (\d+) rows\.", 3, _int, "Parties"),
+    ("CODEBOOK", "EU entity rows", "eu_entities",
+     r"IE: (\d+) rows \((\d+) parties \+ (\d+) independent candidates\)\. "
+     r"EU: (\d+) rows\.", 4, _int, "Parties"),
+    # Statements table
+    ("CODEBOOK", "Statement rows", "ie_statements",
+     r"(\d+) rows each\. The euandi battery", 1, _int, "Statements"),
+    # Positions table
+    ("CODEBOOK", "IE position rows", "ie_positions",
+     r"IE: (\d+) rows\s*\(\d+ x \d+\)\. EU: (\d+) rows", 1, _int, "Positions"),
+    ("CODEBOOK", "EU position rows", "eu_positions",
+     r"IE: (\d+) rows\s*\(\d+ x \d+\)\. EU: (\d+) rows", 2, _int, "Positions"),
+    # No-opinion rows carrying source fields (source_type column note)
+    ("CODEBOOK", "No-opinion rows with source (total)", "total_noop_with_source",
+     r"(\d+) No-opinion rows carry source fields: (\d+) in the Ireland "
+     r"dataset, (\d+) in the EU-level dataset", 1, _int, "Positions"),
+    ("CODEBOOK", "No-opinion rows with source (IE)", "ie_noop_with_source",
+     r"(\d+) No-opinion rows carry source fields: (\d+) in the Ireland "
+     r"dataset, (\d+) in the EU-level dataset", 2, _int, "Positions"),
+    ("CODEBOOK", "No-opinion rows with source (EU)", "eu_noop_with_source",
+     r"(\d+) No-opinion rows carry source fields: (\d+) in the Ireland "
+     r"dataset, (\d+) in the EU-level dataset", 3, _int, "Positions"),
+    # Salience table
+    ("CODEBOOK", "IE salience rows", "ie_salience",
+     r"IE: (\d+) rows\. EU: (\d+) rows\.", 1, _int, "Salience"),
+    ("CODEBOOK", "EU salience rows", "eu_salience",
+     r"IE: (\d+) rows\. EU: (\d+) rows\.", 2, _int, "Salience"),
+    # Same split, as restated under Known Limitations
+    ("CODEBOOK", "No-opinion split restated (total)", "total_noop_with_source",
+     r"(\d+) No-opinion rows do carry source fields: (\d+) in the Ireland\s+"
+     r"dataset, (\d+) in the EU-level dataset", 1, _int, "Known Limitations"),
+    ("CODEBOOK", "No-opinion split restated (IE)", "ie_noop_with_source",
+     r"(\d+) No-opinion rows do carry source fields: (\d+) in the Ireland\s+"
+     r"dataset, (\d+) in the EU-level dataset", 2, _int, "Known Limitations"),
+    ("CODEBOOK", "No-opinion split restated (EU)", "eu_noop_with_source",
+     r"(\d+) No-opinion rows do carry source fields: (\d+) in the Ireland\s+"
+     r"dataset, (\d+) in the EU-level dataset", 3, _int, "Known Limitations"),
+
+    # ---------------- SUMMARY.md ----------------
+    ("SUMMARY", "Statements (intro)", "ie_statements",
+     r"on (\d+) policy statements", 1, _int, "Intro"),
+    ("SUMMARY", "Irish substantive pct", "ie_coded_pct",
+     r"(\d+)% of Irish placements are substantive", 1, _int, "Ireland"),
+    ("SUMMARY", "EU families", "eu_entities",
+     r"the (\d+) EU-level party families", 1, _int, "EU-level"),
 ]
 
 
-def extract_claims(text: str):
+def extract_claims(doc_texts: Dict[str, str]):
     results = []
-    for name, key, pattern, gi, tf, section in CHECK_DEFINITIONS:
-        m = re.search(pattern, text, re.MULTILINE)
+    for doc, name, key, pattern, gi, tf, section in CHECK_DEFINITIONS:
+        m = re.search(pattern, doc_texts[doc], re.MULTILINE)
         if m:
             try:
                 claimed = tf(m.group(gi))
@@ -118,25 +200,28 @@ def extract_claims(text: str):
                 claimed = None
         else:
             claimed = None
-        results.append((name, key, claimed, section))
+        results.append((doc, name, key, claimed, section))
     return results
 
 
 def compare(actuals, claims):
     out = []
-    for name, key, claimed, section in claims:
+    for doc, name, key, claimed, section in claims:
         expected = actuals.get(key)
         if claimed is None:
-            out.append((name, expected, "NOT FOUND", False, section))
+            out.append((doc, name, expected, "NOT FOUND", False, section))
         else:
-            out.append((name, expected, claimed, claimed == expected, section))
+            out.append((doc, name, expected, claimed,
+                        claimed == expected, section))
     return out
 
 
-def fix_readme(text, actuals):
+def fix_doc(doc: str, text: str, actuals):
     fixed = text
     fixes = []
-    for name, key, pattern, gi, tf, section in CHECK_DEFINITIONS:
+    for cdoc, name, key, pattern, gi, tf, section in CHECK_DEFINITIONS:
+        if cdoc != doc:
+            continue
         expected = actuals.get(key)
         m = re.search(pattern, fixed, re.MULTILINE)
         if not m:
@@ -152,42 +237,48 @@ def fix_readme(text, actuals):
         e = m.end(gi) - m.start(0)
         new = full[:s] + str(expected) + full[e:]
         fixed = fixed[:m.start(0)] + new + fixed[m.end(0):]
-        fixes.append(f"{name}: {claimed} -> {expected}")
+        fixes.append(f"{doc} / {name}: {claimed} -> {expected}")
     return fixed, fixes
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Verify README.md statistics against CSV data."
+        description="Verify README/CODEBOOK/SUMMARY statistics against CSV data."
     )
     parser.add_argument("--fix", action="store_true",
-                        help="Fix mismatches in README.md in-place.")
+                        help="Fix mismatches in the documents in-place.")
     args = parser.parse_args()
 
-    print("README Statistics Verification")
+    print("Documentation Statistics Verification")
     print("=" * 40)
     print()
 
     data = load_data()
     actuals = compute_actuals(data)
-    readme_text = README_PATH.read_text(encoding="utf-8")
-    results = compare(actuals, extract_claims(readme_text))
+    doc_texts = {doc: path.read_text(encoding="utf-8")
+                 for doc, path in DOC_PATHS.items()}
+    results = compare(actuals, extract_claims(doc_texts))
 
-    current_section = None
+    current_doc = current_section = None
     passed = failed = not_found = 0
-    for name, expected, claimed, ok, section in results:
+    for doc, name, expected, claimed, ok, section in results:
+        if doc != current_doc:
+            current_doc = doc
+            current_section = None
+            print(f"{doc}.md")
         if section != current_section:
             current_section = section
-            print(section)
+            print(f"  {section}")
         if claimed == "NOT FOUND":
             not_found += 1
-            print(f"  [SKIP] {name}: pattern not found in README")
+            print(f"    [SKIP] {name}: pattern not found in {doc}.md")
         elif ok:
             passed += 1
-            print(f"  [PASS] {name}: {expected} == {claimed}")
+            print(f"    [PASS] {name}: {expected} == {claimed}")
         else:
             failed += 1
-            print(f"  [FAIL] {name}: README says {claimed}, data has {expected}")
+            print(f"    [FAIL] {name}: {doc}.md says {claimed}, "
+                  f"data has {expected}")
 
     print()
     print("-" * 40)
@@ -195,11 +286,15 @@ def main():
           f"({len(results)} total checks)")
 
     if args.fix and failed > 0:
-        fixed_text, fixes = fix_readme(readme_text, actuals)
-        if fixes:
-            README_PATH.write_text(fixed_text, encoding="utf-8")
-            print(f"\nFixed {len(fixes)} values in README.md:")
-            for f in fixes:
+        all_fixes = []
+        for doc, path in DOC_PATHS.items():
+            fixed_text, fixes = fix_doc(doc, doc_texts[doc], actuals)
+            if fixes:
+                path.write_text(fixed_text, encoding="utf-8")
+                all_fixes.extend(fixes)
+        if all_fixes:
+            print(f"\nFixed {len(all_fixes)} values:")
+            for f in all_fixes:
                 print(f"  - {f}")
     elif args.fix:
         print("\nAll checks passed - nothing to fix.")

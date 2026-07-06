@@ -362,8 +362,9 @@ def make_short_description(text: str, max_len: int = 100) -> str:
     if len(short) <= max_len:
         return short
 
-    # Truncate at word boundary
-    truncated = short[:max_len].rsplit(" ", 1)[0]
+    # Truncate at a word boundary; the ellipsis counts towards max_len so the
+    # documented <=100 character bound holds.
+    truncated = short[:max_len - 3].rsplit(" ", 1)[0]
     return truncated + "..."
 
 
@@ -502,9 +503,23 @@ def parse_mission_letters() -> pd.DataFrame:
             "portfolio_title", "commitment_text", "commitment_short",
             "section_heading", "commitment_type", "extraction_method",
             "confidence", "page_number", "raw_paragraph",
+            "n_letters_sharing_text", "is_boilerplate",
         ])
 
     df = pd.DataFrame(all_commitments)
+
+    # Boilerplate disclosure: the letters share a common closing block, so the
+    # same commitment text recurs across most of the 26 letters. Record in how
+    # many letters each exact text appears and flag texts present in more than
+    # half of them, so users can separate portfolio-specific pledges from
+    # template content.
+    letters_per_text = df.groupby("commitment_text")["commissioner_id"].nunique()
+    df["n_letters_sharing_text"] = df["commitment_text"].map(letters_per_text)
+    df["is_boilerplate"] = df["n_letters_sharing_text"] > 13
+    n_boiler = int(df["is_boilerplate"].sum())
+    logger.info(f"Boilerplate: {n_boiler} rows carry text shared by >13 letters "
+                f"({df.loc[df['is_boilerplate'], 'commitment_text'].nunique()} "
+                f"distinct texts)")
 
     # Column ordering
     columns = [
@@ -512,6 +527,7 @@ def parse_mission_letters() -> pd.DataFrame:
         "portfolio_title", "commitment_text", "commitment_short",
         "section_heading", "commitment_type", "classification_method",
         "extraction_method", "confidence", "page_number", "raw_paragraph",
+        "n_letters_sharing_text", "is_boilerplate",
     ]
     columns = [c for c in columns if c in df.columns]
     df = df[columns]

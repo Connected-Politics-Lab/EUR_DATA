@@ -1,6 +1,7 @@
 """
 02_download_mission_letters.py
-Download mission letter PDFs for all 27 Commissioners-designate.
+Download the 26 mission letter PDFs (every College member except the
+President, who has no mission letter).
 
 Uses URLs from the commissioners dataset (scraped or curated in config.py).
 Saves PDFs to data/raw/mission_letters/.
@@ -69,8 +70,10 @@ def download_mission_letters() -> dict:
 def main():
     results = download_mission_letters()
     success = sum(1 for r in results.values() if r["success"])
-    total = len(results)
-    print(f"Mission letters: {success}/{total} downloaded successfully.")
+    # The President has no mission letter, so 26 of the 27 College members
+    # carry a URL; count only those as expected downloads.
+    expected = sum(1 for r in results.values() if r.get("reason") != "no_url")
+    print(f"Mission letters: {success}/{expected} downloaded successfully.")
     return results
 
 

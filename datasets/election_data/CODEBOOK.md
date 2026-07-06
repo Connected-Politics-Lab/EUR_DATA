@@ -56,7 +56,7 @@ One row per entity x statement, **final placement only**. IE: 684 rows
 | `statement_id` | int | **Foreign key** -> `statements.statement_id`. |
 | `position_label` | string | Likert label (`Completely disagree` ... `Completely agree`, or `No opinion`). Rarely blank where the coder left the final cell empty (1 row in IE, `IEP0495`; 0 in EU). |
 | `position_numeric` | Int64 | -2..+2; blank for `No opinion` and missing labels. |
-| `source_type` | string | Evidence type backing the placement. Not a strict controlled vocabulary (see Known Limitations). Usually blank where `No opinion` (19 No-opinion rows carry source fields; see the snippet caveat below). |
+| `source_type` | string | Evidence type backing the placement. Not a strict controlled vocabulary (see Known Limitations). Usually blank where `No opinion` (19 No-opinion rows carry source fields: 16 in the Ireland dataset, 3 in the EU-level dataset; see the snippet caveat below). |
 | `text_snippet` | string | Verbatim quote justifying the placement, where provided. |
 | `source_link` | string | Free-text citation of the source, where provided: usually a URL (sometimes several, space-separated), but also values like `Self-placement`, `Manifesto`, or a document title, and occasionally a page-reference prefix before the URL. Machine-parse as a URL field with care. |
 
@@ -106,14 +106,18 @@ Ireland positions to the EU statement catalogue (or vice versa).
   contains the country/region token (`Ireland` / `EU Member States`). It
   approximates, but does not authoritatively define, the country-templated
   subset of the euandi battery.
-- **Statement wording is templated per dataset.** Common-battery items
-  substitute the country/region name (e.g. "Immigration into **Ireland**" vs
-  "Immigration into **EU Member States**"), and statements 31-36 are
-  country/EP-specific. The two statement catalogues therefore differ in wording
-  even where `statement_id` matches.
+- **A small subset of statements is templated per dataset.** Only 4 of the 36
+  statements (ids 11, 15, 34 and 36) differ in wording between the Ireland and
+  EU-level catalogues; these are the token-templated items that substitute the
+  country/region name (e.g. "Immigration into **Ireland**" vs "Immigration
+  into **EU Member States**"). The other 32 statements are worded identically
+  in both. Statements 31-36 are additions specific to the 2024 EP election, of
+  which only 34 and 36 are country-templated (31, 32, 33 and 35 are identical
+  across editions).
 - **Sparse `text_snippet` / `source_link`.** These are blank wherever the coder
   recorded a position without attaching a quote or URL, and usually blank for
-  `No opinion` (19 No-opinion rows do carry source fields).
+  `No opinion` (19 No-opinion rows do carry source fields: 16 in the Ireland
+  dataset, 3 in the EU-level dataset).
 - **Placeholder snippets for one candidate.** The independent candidate Punch
   (`PUNCH`) has 15 `No opinion` rows whose `text_snippet` is the coder's note
   "New Candidate - No public information available". Treat these as metadata
@@ -128,6 +132,9 @@ Source: euandi 2024 Voting Advice Application expert coding (euandi 2024 team,
 European University Institute), published under CC BY 4.0 via EUI Cadmus:
 <https://cadmus.eui.eu/entities/publication/6bd21956-5731-4a7b-be18-c24bba63a2aa>.
 This dataset is a derivative work, redistributed under CC BY 4.0 with attribution
-to the original authors. Statistics in [README.md](README.md) are verified
+to the original authors. The source workbooks are not redistributed here
+(`data/raw/` is gitignored); obtain them from the Cadmus record above and place
+them in `data/raw/` to re-run the pipeline (see README, *Raw data
+availability*). Statistics in [README.md](README.md) are verified
 against the CSVs by `verify_readme.py`. Derived data: CC-BY-4.0; pipeline code:
 Apache-2.0.

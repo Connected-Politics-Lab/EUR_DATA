@@ -1,3 +1,6 @@
+# Minimum supported Python version: 3.9.
+# Tested environment (2026-07-06): Python 3.12.11, pandas 2.3.3,
+# openpyxl 3.1.5, pytest 9.0.2. The floors below are minima, not pins.
 pandas>=2.1.0
 openpyxl>=3.1.0
 pytest>=7.4.0

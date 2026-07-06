@@ -29,11 +29,13 @@ SCHEMAS = {
         "section_heading", "commitment_type", "classification_method",
         "extraction_method",
         "confidence", "page_number", "raw_paragraph",
+        "n_letters_sharing_text", "is_boilerplate",
     ],
     "hearings.csv": [
         "hearing_id", "commissioner_id", "commissioner_name",
         "hearing_date", "committees_responsible", "committees_associated",
-        "outcome", "evaluation_letter_url", "written_questions_url", "video_url",
+        "outcome", "source_url",
+        "evaluation_letter_url", "written_questions_url", "video_url",
     ],
     "investiture_vote.csv": [
         "mep_id", "full_name", "last_name", "first_name",
@@ -111,8 +113,10 @@ class TestDataTypes:
         )
 
     def test_vote_values_valid(self):
+        # Only these three occur: non-voting MEPs are excluded from the table
+        # (there are no did_not_vote rows).
         df = load_csv("investiture_vote.csv")
-        valid_votes = {"for", "against", "abstain", "did_not_vote"}
+        valid_votes = {"for", "against", "abstain"}
         actual = set(df["vote"].unique())
         invalid = actual - valid_votes
         assert not invalid, f"Invalid vote values: {invalid}"

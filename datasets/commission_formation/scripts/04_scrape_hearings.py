@@ -89,7 +89,8 @@ def build_hearings() -> pd.DataFrame:
     columns = [
         "hearing_id", "commissioner_id", "commissioner_name",
         "hearing_date", "committees_responsible", "committees_associated",
-        "outcome", "evaluation_letter_url", "written_questions_url", "video_url",
+        "outcome", "source_url", "evaluation_letter_url",
+        "written_questions_url", "video_url",
     ]
     columns = [c for c in columns if c in df.columns]
     df = df[columns]

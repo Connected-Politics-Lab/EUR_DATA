@@ -3,7 +3,9 @@
 Build the agenda-item spine from the sibling commission_formation dataset.
 
 One row per tracked agenda item:
-  * every CWP 2025 work-programme item (Annex I-IV), and
+  * every CWP 2025 work-programme item (Annexes I, II, IV and V; the official
+    Annex III, pending priority proposals, is out of the sibling's scope and is
+    covered by this dataset's term corpus), and
   * the legislative mission-letter commitments.
 
 Links back via wp_item_id / commitment_id; never duplicates sibling content.
@@ -27,8 +29,8 @@ AGENDA_COLS = [
 ANNEX_TO_SCOPE = {
     "I": "cwp_annex_i",
     "II": "cwp_annex_ii",
-    "III": "cwp_annex_iii",
     "IV": "cwp_annex_iv",
+    "V": "cwp_annex_v",
 }
 
 
@@ -53,13 +55,19 @@ def main():
     rows = []
     counter = 0
 
-    # CWP work-programme items (all four annexes).
+    # CWP work-programme items (Annexes I, II, IV, V).
     for _, r in wp.iterrows():
         counter += 1
         annex = _s(r.get("annex"))
+        if annex not in ANNEX_TO_SCOPE:
+            raise ValueError(
+                f"Unexpected annex value {annex!r} for item "
+                f"{_s(r.get('item_id'))} in {config.WORK_PROGRAMME_CSV.name}; "
+                f"expected one of {sorted(ANNEX_TO_SCOPE)}."
+            )
         rows.append({
             "agenda_item_id": f"AI{counter:04d}",
-            "source_scope": ANNEX_TO_SCOPE.get(annex, "cwp_annex_i"),
+            "source_scope": ANNEX_TO_SCOPE[annex],
             "wp_item_id": _s(r.get("item_id")),
             "commitment_id": "",
             "title": _s(r.get("title")),

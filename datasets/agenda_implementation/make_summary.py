@@ -29,8 +29,10 @@ plt.rcParams.update({
 
 ACCENT = "#34618E"
 SCOPE_LABELS = {
-    "cwp_annex_i": "Annex I\nNew initiatives", "cwp_annex_ii": "Annex II\nREFIT",
-    "cwp_annex_iii": "Annex III\nEvaluations", "cwp_annex_iv": "Annex IV\nRepeals",
+    "cwp_annex_i": "Annex I\nNew initiatives",
+    "cwp_annex_ii": "Annex II\nEvaluations &\nfitness checks",
+    "cwp_annex_iv": "Annex IV\nWithdrawals",
+    "cwp_annex_v": "Annex V\nRepeals",
     "mission_letter": "Mission-letter\ncommitments",
 }
 STATUS_COLOURS = {
@@ -64,7 +66,7 @@ def fig_scope():
     fig, ax = plt.subplots(figsize=(10, 5))
     bars = ax.bar([SCOPE_LABELS[s] for s in counts.index], counts.values, color=ACCENT)
     _labels(ax, bars)
-    ax.set_title("Tracked agenda items by source (124 total)")
+    ax.set_title(f"Tracked agenda items by source ({len(ai)} total)")
     ax.set_ylabel("Items")
     fig.savefig(FIG / "agenda_scope.png", bbox_inches="tight")
     plt.close(fig)
@@ -121,8 +123,9 @@ def fig_corpus():
     ax.set_title(f"Term legislative output by type and year ({len(tlo)} procedures)")
     ax.legend(title="Procedure type", frameon=False, ncol=4)
     if 2026 in list(pivot.index):
-        ax.text(0.99, 0.02, "2026 is a partial year (snapshot to date).",
-                transform=ax.transAxes, ha="right", va="bottom", fontsize=8.5,
+        # Below the axes, clear of the bars (AG-14).
+        ax.text(0.99, -0.16, "2026 is a partial year (snapshot to date).",
+                transform=ax.transAxes, ha="right", va="top", fontsize=8.5,
                 style="italic", color="#666")
     fig.savefig(FIG / "term_corpus.png", bbox_inches="tight")
     plt.close(fig)
@@ -130,7 +133,9 @@ def fig_corpus():
 
 def fig_annex_iv_age():
     ps = _latest_status()
-    yrs = pd.to_datetime(ps["proposed_date"], errors="coerce").dt.year.dropna().astype(int)
+    resolved = ps[ps["status"] != "not_found"]
+    dated = pd.to_datetime(resolved["proposed_date"], errors="coerce")
+    yrs = dated.dt.year.dropna().astype(int)
     if yrs.empty:
         return
     counts = yrs.value_counts().sort_index()
@@ -144,8 +149,12 @@ def fig_annex_iv_age():
     ax.set_ylabel("Proposals")
     ax.tick_params(axis="x", rotation=45)
     span = f"{int(yrs.min())}-{int(yrs.max())}"
-    ax.text(0.02, 0.95, f"These files have been pending for up to ~{2025 - int(yrs.min())} years "
-            f"({span}).", transform=ax.transAxes, va="top", fontsize=9,
+    snap_year = int(str(ps["as_of_date"].iloc[0])[:4])
+    ax.text(0.02, 0.95,
+            f"These files have been pending for up to ~{snap_year - int(yrs.min())} "
+            f"years ({span}).\n({len(yrs)} of {len(resolved)} resolved procedures "
+            f"carry a dated first event.)",
+            transform=ax.transAxes, va="top", fontsize=9,
             bbox=dict(boxstyle="round", fc="#F4F6F8", ec="#CCC"))
     fig.savefig(FIG / "annex_iv_age.png", bbox_inches="tight")
     plt.close(fig)

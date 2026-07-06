@@ -43,7 +43,7 @@ LEGISLATIVE_COMMITMENTS_CSV = MANUAL_DIR / "legislative_commitments.csv"
 EP_API_BASE = "https://data.europarl.europa.eu/api/v2"
 EP_API_ACCEPT = "application/ld+json"
 EP_API_PAGE_LIMIT = 100          # max items per listing page
-EP_API_SLEEP = 0.4               # polite delay between requests (~500 req/5 min)
+EP_API_SLEEP = 0.4               # polite delay between requests (~750 req/5 min)
 
 # EUR-Lex Cellar SPARQL endpoint (cross-check: COM -> CELEX, in-force, OJ date).
 EURLEX_SPARQL = "http://publications.europa.eu/webapi/rdf/sparql"
@@ -124,13 +124,16 @@ PHASE_CODE_TO_STATUS: Dict[str, str] = {
     "PROCEDURE_LAPSED_OR_WITHDRAWN": "lapsed",
 }
 
-# Source-scope enum for the agenda_items spine.
+# Source-scope enum for the agenda_items spine. The official CWP Annex III
+# (pending priority proposals) is deliberately out of scope of the sibling
+# dataset, so there is no cwp_annex_iii scope; those procedures are covered by
+# this dataset's term corpus instead.
 SOURCE_SCOPES = [
-    "cwp_annex_i", "cwp_annex_ii", "cwp_annex_iii", "cwp_annex_iv",
+    "cwp_annex_i", "cwp_annex_ii", "cwp_annex_iv", "cwp_annex_v",
     "mission_letter",
 ]
 
-# Evaluation types for the curated evaluations table (Annex II + III).
+# Evaluation types for the curated evaluations table (Annex II).
 EVALUATION_TYPES = [
     "refit", "fitness_check", "interim_evaluation", "evaluation",
 ]

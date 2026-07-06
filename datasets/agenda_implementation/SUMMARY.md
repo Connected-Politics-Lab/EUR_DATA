@@ -12,8 +12,13 @@ and cross-checked in EUR-Lex. All figures are reproducible from the output CSVs
 
 ![Agenda items by source](figures/agenda_scope.png)
 
-- **190 agenda items** are tracked: the 127 CWP 2025 work-programme items (across
-  the four annexes) plus the 63 legislative mission-letter commitments.
+- **193 agenda items** are tracked: the 130 CWP 2025 work-programme items
+  (Annexes I, II, IV and V of the official five-annex structure; the official
+  Annex III, pending priority proposals, is covered by the term corpus instead)
+  plus the 63 legislative mission-letter commitments.
+- Annex IV and Annex V are different clean-up instruments: Annex IV *withdraws
+  pending proposals* (which carry procedure numbers), while Annex V *repeals
+  acts already in force* (identified by CELEX only).
 - The scopes differ sharply in how automatable they are. Only **Annex IV**
   (whose proposals carry procedure numbers) resolves automatically; Annex I new
   initiatives, the evaluations and the commitments are curated, because policy
@@ -41,7 +46,9 @@ This is the core measure - and it carries an honest, easily-misread signal:
 Plotting each proposal by the year it was first tabled shows **why these files
 are being cleared**: they reach back to **2008**, with clusters around 2017-2018
 and 2022. Many have been formally pending for over a decade, which is the
-clean-up rationale behind Annex IV.
+clean-up rationale behind Annex IV. The figure covers the procedures with a
+dated first event in the EP API (30 of 35 resolved procedures carry a dated
+first event; the other 5 resolve without one and are not plotted).
 
 ## The legislative backdrop
 

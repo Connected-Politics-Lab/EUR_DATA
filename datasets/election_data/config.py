@@ -30,9 +30,6 @@ OUTPUT_DIR = DATA_DIR / "output"
 IE_WORKBOOK = RAW_DIR / "EU&I 2024 Ireland - Final coding.xlsx"
 EU_WORKBOOK = RAW_DIR / "EU&I 2024 general codesheet + salience_EU_Level_parties.xlsx"
 
-# A non-data template sheet in the EU workbook, skipped during parsing.
-TEMPLATE_SHEET = "Rename with party acronym"
-
 # ============================================================
 # Sheet layout (euandi coding template)
 # ============================================================
@@ -148,7 +145,7 @@ IE_ENTITIES = [
      "affiliation": "Independent", "constituency": "South"},
     {"party_id": "FLANAGAN", "sheet_name": "Flanagan (IND - Midlands NW)", "acronym": "",
      "full_name": "Luke Flanagan", "entity_type": "independent_candidate",
-     "affiliation": "Independent", "constituency": "Midlands–North-West"},
+     "affiliation": "Independent", "constituency": "Midlands-North-West"},
     {"party_id": "DALY", "sheet_name": "Daly (I4C - Dublin)", "acronym": "",
      "full_name": "Clare Daly", "entity_type": "independent_candidate",
      "affiliation": "Independents 4 Change", "constituency": "Dublin"},

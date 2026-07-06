@@ -12,7 +12,7 @@ not possible. The dependable path is a curated override file; this script:
   2. ingests any curated links into procedure_references and fetches their
      status into the procedure_status time series, and
   3. (opt-in, AGENDA_FUZZY=1) writes rapidfuzz title-match *suggestions* to
-     data/output/annex_i_match_candidates.csv for human review - never straight
+     data/manual/annex_i_match_candidates.csv for human review - never straight
      into the dataset.
 
 Network access only for ingested overrides and the opt-in fuzzy pass.
@@ -127,10 +127,12 @@ def _fuzzy_candidates(annex_i, logger, today):
         match = process.extractOne(title, titles, scorer=fuzz.token_set_ratio)
         if match:
             value, score, ref = match
+            # similarity_score is a raw token-set ratio (reaches 1.0 on shared
+            # tokens alone); it is NOT a validated match confidence.
             rows.append({"wp_item_id": item["wp_item_id"], "annex_i_title": title,
                          "candidate_ref": ref, "candidate_title": value,
-                         "match_confidence": round(score / 100, 3), "as_of_date": today})
-    cand = pd.DataFrame(rows).sort_values("match_confidence", ascending=False)
+                         "similarity_score": round(score / 100, 3), "as_of_date": today})
+    cand = pd.DataFrame(rows).sort_values("similarity_score", ascending=False)
     config.MANUAL_DIR.mkdir(parents=True, exist_ok=True)
     cand.to_csv(config.MANUAL_DIR / "annex_i_match_candidates.csv", index=False,
                 encoding="utf-8-sig")

@@ -43,9 +43,11 @@ explicit "No opinion" option:
 | Completely agree | +2 |
 | No opinion | *(blank)* |
 
-Statements 1-30 are the common euandi battery (some templated with the country
-name); statements 31-36 are country/EP-specific additions. Across both datasets
-there are **1044 total placements**.
+Statements 1-30 are the common euandi battery (statements 11 and 15 are
+templated with the country name); statements 31-36 are additions specific to
+the 2024 EP election, of which only 34 and 36 are country-templated (31, 32, 33
+and 35 are worded identically across editions). Across both datasets there are
+**1044 total placements**.
 
 ## Ireland
 
@@ -82,6 +84,8 @@ EU-level placements** are substantive.
 
 ## Reproducing
 
+Requires Python 3.9 or newer.
+
 ```bash
 pip install -r requirements.txt
 python run_pipeline.py            # parse both workbooks -> data/output/
@@ -91,6 +95,17 @@ python verify_readme.py           # verify the figures above against the CSVs
 
 The pipeline reads only the two static workbooks in `data/raw/`; no network
 access is required, so runs are fully deterministic.
+
+### Raw data availability
+
+The two source workbooks ("EU&I 2024 Ireland - Final coding.xlsx" and "EU&I
+2024 general codesheet + salience_EU_Level_parties.xlsx") are **not shipped**
+in the public repository: `data/raw/` is gitignored. To re-run the pipeline,
+obtain the euandi 2024 dataset from the EUI Cadmus release cited under
+*Provenance and Licence* below (CC BY 4.0) and place the two workbooks in
+`data/raw/`. Without them `run_pipeline.py` fails at the workbook-read step.
+All derived outputs (`data/output/`), figures and documentation are shipped,
+so the dataset itself is usable without the raw workbooks.
 
 ## Provenance and Licence
 

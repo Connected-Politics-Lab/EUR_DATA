@@ -5,11 +5,17 @@ Extract legislative initiatives from the Commission Work Programme 2025 PDF.
 Uses pdfplumber table extraction on annex pages. Falls back to text-based
 regex parsing if tables don't extract cleanly.
 
-The CWP typically has 4 annexes:
-  I   - New initiatives
-  II  - REFIT initiatives
-  III - Withdrawals
-  IV  - Repeals
+The CWP 2025 annexes document (COM(2025) 45 final, ANNEXES 1 to 5) contains:
+  I   - New initiatives (numbered rows may hold several initiatives)
+  II  - Annual plan on evaluations and fitness checks
+  III - Pending proposals (NOT extracted: out of scope for this dataset;
+        pending files are tracked in the agenda_implementation term corpus)
+  IV  - Withdrawals (of pending proposals)
+  V   - Envisaged repeals
+
+Annex headings can fall mid-page (e.g. the last Annex II items share a page
+with the Annex III heading), so tables are assigned to annexes by the vertical
+position of the nearest preceding heading, not per page.
 
 Output: work_programme_items.csv + .xlsx
 """
@@ -34,25 +40,36 @@ except ImportError:
 CWP_FILENAME = "COM_2025_45_1_EN.pdf"
 CWP_ANNEXES_FILENAME = "COM_2025_45_1_annexes_EN.pdf"
 
-# Annex identification patterns
-ANNEX_PATTERNS = {
-    "I": re.compile(r"ANNEX\s+I\b(?!\s*[IV])", re.IGNORECASE),
-    "II": re.compile(r"ANNEX\s+II\b", re.IGNORECASE),
-    "III": re.compile(r"ANNEX\s+III\b", re.IGNORECASE),
-    "IV": re.compile(r"ANNEX\s+IV\b", re.IGNORECASE),
-}
+# Annex heading pattern; longest roman numerals first so "III" wins over "II".
+ANNEX_HEADING_RE = re.compile(r"Annex\s+(III|II|IV|V|I)\s*:", re.IGNORECASE)
+
+# Annexes whose items ship in the dataset. Official Annex III (pending
+# proposals) is deliberately excluded: those are files carried over from
+# earlier terms, tracked separately in agenda_implementation.
+EXTRACTED_ANNEXES = ["I", "II", "IV", "V"]
 
 ANNEX_TITLES = {
     "I": "New initiatives",
-    "II": "REFIT initiatives",
-    "III": "Pending proposals to be withdrawn",
-    "IV": "Pending proposals to be repealed",
+    "II": "Annual plan on evaluations and fitness checks",
+    "III": "Pending proposals (not extracted)",
+    "IV": "Withdrawals",
+    "V": "Envisaged repeals",
 }
 
-# Indicative timing strings look like "Q2 2025", "Q1/Q2 2025", "Q3 / Q4 2025".
-# In some annex tables (II/III) this value lands in the column that otherwise
-# carries the legal instrument, so we detect it and route it to the right field.
-TIMING_RE = re.compile(r"^\s*Q[1-4]\b", re.IGNORECASE)
+# Column semantics of the sparse-grid annex tables, in official header order
+# (after the "No." column): Annex II is "Full Title | Indicative finalisation
+# time"; Annex IV is "References | Title | Reasons for withdrawal"; Annex V is
+# "Policy area | Title | Reasons for repeal".
+ANNEX_COLUMN_SEMANTICS = {
+    "II": ["title", "indicative_timing"],
+    "IV": ["references", "title", "reasons"],
+    "V": ["policy_area", "title", "reasons"],
+}
+
+# Legal instrument named in a withdrawal/repeal title.
+INSTRUMENT_RE = re.compile(
+    r"(Regulation|Directive|Decision|Recommendation|Communication)",
+    re.IGNORECASE)
 
 
 def download_cwp(logger) -> Path:
@@ -85,169 +102,145 @@ def download_cwp(logger) -> Path:
         raise RuntimeError("Failed to download CWP 2025 PDF")
 
 
-def identify_annex_pages(pdf_path: Path, logger) -> Dict[str, List[int]]:
+def identify_annex_tables(pdf_path: Path, logger):
     """
-    Scan the PDF to identify which pages belong to which annex.
-    Returns dict of annex_number -> list of page indices (0-based).
+    Assign every table in the PDF to an annex by the vertical position of the
+    nearest preceding "Annex N:" heading. A heading mid-page (e.g. Annex III
+    on the page carrying the last Annex II rows) therefore splits that page's
+    tables correctly instead of relabelling the whole page.
+
+    Returns (annex_tables, annex_pages):
+      annex_tables: dict annex -> list of tables, each a list of rows
+                    (each row a list of raw cell values)
+      annex_pages:  dict annex -> sorted list of page indices holding those
+                    tables (used by the text fallback)
     """
-    annex_pages = {k: [] for k in ANNEX_PATTERNS}
+    annex_tables = {k: [] for k in ANNEX_TITLES}
+    annex_pages = {k: set() for k in ANNEX_TITLES}
     current_annex = None
 
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages):
-            text = page.extract_text() or ""
-            first_lines = text[:500]
+            # Locate annex headings on this page with their vertical position.
+            headings = []  # (top, annex_numeral)
+            for hit in page.search(ANNEX_HEADING_RE.pattern) or []:
+                m = ANNEX_HEADING_RE.search(hit.get("text", ""))
+                if m:
+                    headings.append((hit["top"], m.group(1).upper()))
+            headings.sort()
 
-            # Check if this page starts a new annex
-            for annex_num, pattern in ANNEX_PATTERNS.items():
-                if pattern.search(first_lines):
-                    current_annex = annex_num
-                    logger.debug(f"Page {i+1}: Start of Annex {annex_num}")
-                    break
+            for table in page.find_tables():
+                table_top = table.bbox[1]
+                annex = current_annex
+                for top, numeral in headings:
+                    if top < table_top:
+                        annex = numeral
+                if annex:
+                    annex_tables[annex].append(table.extract())
+                    annex_pages[annex].add(i)
 
-            if current_annex:
-                annex_pages[current_annex].append(i)
+            if headings:
+                current_annex = headings[-1][1]
 
-    for annex, pages in annex_pages.items():
-        if pages:
-            logger.info(f"Annex {annex}: pages {pages[0]+1}-{pages[-1]+1} "
-                        f"({len(pages)} pages)")
+    for annex in ANNEX_TITLES:
+        if annex_tables[annex]:
+            pages = sorted(annex_pages[annex])
+            logger.info(
+                f"Annex {annex} ({ANNEX_TITLES[annex]}): "
+                f"{len(annex_tables[annex])} tables on pages "
+                f"{pages[0]+1}-{pages[-1]+1}")
 
-    return annex_pages
+    return annex_tables, {k: sorted(v) for k, v in annex_pages.items()}
 
 
-def extract_tables_from_pages(pdf_path: Path, page_indices: List[int],
-                               logger) -> List[List]:
+def parse_annex_sparse(tables: List[List], annex: str, logger) -> List[Dict]:
     """
-    Extract tables from specified pages using pdfplumber.
-    Returns list of rows (each row is a list of cell values).
+    Parse the sparse-grid annex tables (II, IV, V): pdfplumber returns them as
+    wide grids with most cells empty and wrapped text spread over several rows,
+    so rows are grouped by their "N." cell and cell text re-joined column-wise
+    (the same technique as parse_annex_i). Column meanings follow the official
+    table headers (ANNEX_COLUMN_SEMANTICS). Full-width section banners land in
+    columns that are empty on the numbered row and are dropped.
     """
-    all_rows = []
+    def _cell(c):
+        return (c or "").replace("\n", " ").strip()
 
-    with pdfplumber.open(pdf_path) as pdf:
-        for page_idx in page_indices:
-            page = pdf.pages[page_idx]
-            tables = page.extract_tables()
+    semantics = ANNEX_COLUMN_SEMANTICS[annex]
+    groups = []
+    current = None
+    for table in tables:
+        for row in table:
+            cells = [_cell(c) for c in row]
+            row_join = " ".join(c for c in cells if c).lower()
+            # Skip column-header rows (repeated on continuation pages)
+            if "no." in row_join and ("title" in row_join or "policy" in row_join):
+                continue
+            num = next((c for c in cells if re.fullmatch(r"\d{1,3}\.", c)), "")
+            if num:
+                if current:
+                    groups.append(current)
+                current = {"num": num.rstrip("."), "cols": {}, "num_row_cols": set()}
+            if current:
+                for ci, c in enumerate(cells):
+                    if not c or c == num:
+                        continue
+                    current["cols"].setdefault(ci, []).append(c)
+                    if num:
+                        current["num_row_cols"].add(ci)
+    if current:
+        groups.append(current)
 
-            if tables:
-                for table in tables:
-                    for row in table:
-                        if row and any(cell and cell.strip() for cell in row if cell):
-                            # Clean cells
-                            cleaned = [
-                                (cell.strip().replace("\n", " ") if cell else "")
-                                for cell in row
-                            ]
-                            all_rows.append(cleaned)
-
-    logger.debug(f"Extracted {len(all_rows)} table rows from {len(page_indices)} pages")
-    return all_rows
-
-
-def parse_table_rows(rows: List[List], annex: str, logger) -> List[Dict]:
-    """
-    Parse table rows into structured items.
-    CWP tables typically have columns: No., Title, Type/Description, Timing.
-    """
     items = []
-    item_counter = 0
+    for g in groups:
+        cols = []
+        dropped = []
+        for ci in sorted(g["cols"]):
+            text = re.sub(r"\s+", " ", " ".join(g["cols"][ci])).strip()
+            if ci in g["num_row_cols"]:
+                cols.append(text)
+            else:
+                dropped.append(text)
+        if dropped:
+            logger.debug(
+                f"Annex {annex} row {g['num']}: dropped section banner text "
+                f"{' / '.join(d[:60] for d in dropped)!r}")
 
-    # Try to detect header row
-    header_idx = -1
-    for i, row in enumerate(rows):
-        row_text = " ".join(row).lower()
-        if any(kw in row_text for kw in ["title", "initiative", "no.", "objective"]):
-            header_idx = i
-            break
+        if len(cols) == len(semantics):
+            fields = dict(zip(semantics, cols))
+        else:
+            logger.warning(
+                f"Annex {annex} row {g['num']}: expected {len(semantics)} "
+                f"columns, found {len(cols)}; joining into title")
+            fields = {"title": " ".join(cols)}
 
-    data_rows = rows[header_idx + 1:] if header_idx >= 0 else rows
+        title = fields.get("title", "")
+        desc_bits = []
+        if fields.get("references"):
+            desc_bits.append(f"References: {fields['references']}")
+        if fields.get("reasons"):
+            label = ("Reasons for repeal" if annex == "V"
+                     else "Reasons for withdrawal")
+            desc_bits.append(f"{label}: {fields['reasons']}")
 
-    for row in data_rows:
-        # Skip empty or header-like rows
-        if not row or len(row) < 2:
-            continue
-
-        row_text = " ".join(row).strip()
-        if len(row_text) < 10:
-            continue
-
-        # Skip section headers within tables
-        if row_text == row_text.upper() and len(row_text) < 80:
-            continue
-
-        item_counter += 1
-
-        # Map columns based on count
-        item_number = ""
-        title = ""
-        description = ""
-        policy_area = ""
+        # Normalise the legal instrument named in a withdrawal/repeal title so
+        # downstream counts (REGULATION vs Regulation) are consistent.
         type_of_act = ""
-        timing = ""
+        if annex in ("IV", "V"):
+            m = INSTRUMENT_RE.search(title)
+            if m:
+                type_of_act = m.group(1).upper()
 
-        if len(row) >= 5:
-            item_number = row[0].strip()
-            policy_area = row[1].strip() if row[1] else ""
-            title = row[2].strip() if row[2] else ""
-            type_of_act = row[3].strip() if row[3] else ""
-            timing = row[4].strip() if row[4] else ""
-        elif len(row) >= 4:
-            item_number = row[0].strip()
-            title = row[1].strip() if row[1] else ""
-            type_of_act = row[2].strip() if row[2] else ""
-            timing = row[3].strip() if row[3] else ""
-        elif len(row) >= 3:
-            item_number = row[0].strip()
-            title = row[1].strip() if row[1] else ""
-            description = row[2].strip() if row[2] else ""
-        elif len(row) >= 2:
-            title = row[0].strip() if row[0] else ""
-            description = row[1].strip() if row[1] else ""
+        items.append({
+            "annex": annex,
+            "item_number": g["num"],
+            "title": title,
+            "description": " ".join(desc_bits),
+            "policy_area": fields.get("policy_area", ""),
+            "type_of_act": type_of_act,
+            "indicative_timing": fields.get("indicative_timing", ""),
+        })
 
-        # Try to extract item number if embedded in title
-        if not item_number and title:
-            num_match = re.match(r"^(\d+)\.\s*(.+)", title)
-            if num_match:
-                item_number = num_match.group(1)
-                title = num_match.group(2)
-
-        # Some annex tables (II/III) place the indicative timing in the column
-        # that otherwise carries the legal instrument. Route any timing string
-        # (e.g. "Q2 2025") to indicative_timing and keep type_of_act for the
-        # legal instrument only.
-        if type_of_act and TIMING_RE.match(type_of_act):
-            if not timing:
-                timing = type_of_act
-            type_of_act = ""
-
-        # The Annex II table has only three populated cells (No. / Full Title /
-        # Indicative finalisation time), which the five-column mapping reads as
-        # item_number / policy_area / title. If the mapped title is itself a
-        # timing string, the real title is sitting in policy_area: shift it
-        # back and route the timing to indicative_timing.
-        if TIMING_RE.match(title) and policy_area and not TIMING_RE.match(policy_area):
-            if not timing:
-                timing = title.strip()
-            title = policy_area
-            policy_area = ""
-
-        # Normalise the legal instrument to a single case so downstream counts
-        # (e.g. REGULATION vs Regulation) are consistent.
-        if type_of_act:
-            type_of_act = type_of_act.upper()
-
-        if title:
-            items.append({
-                "annex": annex,
-                "item_number": item_number,
-                "title": title,
-                "description": description,
-                "policy_area": policy_area,
-                "type_of_act": type_of_act,
-                "indicative_timing": timing,
-            })
-
-    logger.info(f"Annex {annex}: parsed {len(items)} items from tables")
+    logger.info(f"Annex {annex}: parsed {len(items)} items from sparse tables")
     return items
 
 
@@ -317,63 +310,104 @@ def extract_text_fallback(pdf_path: Path, page_indices: List[int],
 
 
 # Annex I lists individual initiatives in a "No. | Policy objective | Initiatives"
-# table; each initiative carries its (non-)legislative nature and indicative
-# quarter in brackets. A numbered row may hold several initiatives, and the
-# policy objective can wrap across table rows, so we group by number.
+# table; each initiative carries its (non-)legislative nature and, usually, an
+# indicative quarter in brackets ("tbd" for row 45). A numbered row may hold
+# several initiatives, the policy objective can wrap across table rows, and an
+# initiative's bracket can itself split across rows (row 6 ends "... Q4" with
+# "2025)" on the next line), so we group rows by number and join cell text
+# column-wise within each group before extracting initiatives.
+ANNEX_I_INITIATIVE_OPEN_RE = re.compile(
+    r"\((non-legislative or legislative|non-legislative|legislative)\b"
+)
 ANNEX_I_INITIATIVE_RE = re.compile(
     r"\((non-legislative or legislative|non-legislative|legislative)\b"
-    r"[\s\S]*?(Q[1-4](?:\s*/\s*Q[1-4])?\s*20\d{2}|20\d{2})\s*\)"
+    r"[\s\S]*?(Q[1-4](?:\s*[/-]\s*Q[1-4])?\s*20\d{2}|20\d{2}|tbd)\s*\)",
+    re.IGNORECASE
 )
 
+ANNEX_I_HEADER_CELLS = {"No.", "Policy objective", "Initiatives"}
 
-def parse_annex_i(pdf_path: Path, page_indices: List[int], logger) -> List[Dict]:
+
+def parse_annex_i(tables: List[List], logger) -> List[Dict]:
     """Parse Annex I into one row per initiative (name, objective, type, timing)."""
     def _cell(c):
         return (c or "").replace("\n", " ").strip()
 
+    # Group rows by the numbered cell; keep every non-empty cell with its
+    # column index so wrapped text can be re-joined column-wise. Columns
+    # populated on the numbered row itself are recorded so that full-width
+    # section banners appearing in *other* columns of continuation rows
+    # (the CWP chapter headings) can be told apart from the group's own
+    # policy objective.
     groups = []
     current = None
-    with pdfplumber.open(pdf_path) as pdf:
-        for page_idx in page_indices:
-            for table in pdf.pages[page_idx].extract_tables() or []:
-                for row in table:
-                    cells = [_cell(c) for c in row]
-                    num = next((c for c in cells if re.fullmatch(r"\d{1,2}\.", c)), "")
-                    init = next((c for c in cells if ANNEX_I_INITIATIVE_RE.search(c)), "")
-                    obj = next((c for c in cells[1:] if c
-                                and not ANNEX_I_INITIATIVE_RE.search(c)
-                                and not re.fullmatch(r"\d{1,2}\.", c)
-                                and c not in ("Policy objective", "Initiatives", "No.")), "")
+    for table in tables:
+        for row in table:
+            cells = [_cell(c) for c in row]
+            num = next((c for c in cells if re.fullmatch(r"\d{1,2}\.", c)), "")
+            if num:
+                if current:
+                    groups.append(current)
+                current = {"num": num.rstrip("."), "cols": {}, "num_row_cols": set()}
+            if current:
+                for ci, c in enumerate(cells):
+                    if not c or c == num or c in ANNEX_I_HEADER_CELLS:
+                        continue
+                    current["cols"].setdefault(ci, []).append(c)
                     if num:
-                        if current:
-                            groups.append(current)
-                        current = {"num": num.rstrip("."),
-                                   "obj": [obj] if obj else [],
-                                   "inits": [init] if init else []}
-                    elif current:
-                        if obj:
-                            current["obj"].append(obj)
-                        if init:
-                            current["inits"].append(init)
-        if current:
-            groups.append(current)
+                        current["num_row_cols"].add(ci)
+    if current:
+        groups.append(current)
 
     type_norm = {"legislative": "Legislative", "non-legislative": "Non-legislative",
                  "non-legislative or legislative": "Non-legislative or legislative"}
     items = []
     for g in groups:
-        objective = " ".join(g["obj"]).strip()
-        for init in g["inits"]:
-            m = ANNEX_I_INITIATIVE_RE.search(init)
-            items.append({
-                "annex": "I",
-                "item_number": g["num"],
-                "title": init[:m.start()].strip(" ."),
-                "description": "",
-                "policy_area": objective,
-                "type_of_act": type_norm.get(m.group(1), m.group(1)),
-                "indicative_timing": re.sub(r"\s+", " ", m.group(2)).strip(),
-            })
+        obj_parts = []
+        init_texts = []
+        dropped = []
+        for ci in sorted(g["cols"]):
+            text = re.sub(r"\s+", " ", " ".join(g["cols"][ci])).strip()
+            if ANNEX_I_INITIATIVE_OPEN_RE.search(text):
+                init_texts.append(text)
+            elif ci in g["num_row_cols"]:
+                obj_parts.append(text)
+            else:
+                # Non-initiative text in a column empty on the numbered row:
+                # a full-width section banner (CWP chapter heading), not this
+                # row's policy objective.
+                dropped.append(text)
+        if not obj_parts and dropped:
+            obj_parts, dropped = dropped, []
+        if dropped:
+            logger.debug(
+                f"Annex I row {g['num']}: dropped section banner text "
+                f"{' / '.join(d[:60] for d in dropped)!r}")
+        objective = " ".join(obj_parts).strip()
+
+        for text in init_texts:
+            prev_end = 0
+            for m in ANNEX_I_INITIATIVE_RE.finditer(text):
+                # A row may list several initiatives joined by "and"/"or";
+                # strip the leading conjunction from continuation titles.
+                title = text[prev_end:m.start()].strip(" .")
+                title = re.sub(r"^(?:and|or)\s+", "", title)
+                items.append({
+                    "annex": "I",
+                    "item_number": g["num"],
+                    "title": title,
+                    "description": "",
+                    "policy_area": objective,
+                    "type_of_act": type_norm.get(m.group(1).lower(), m.group(1)),
+                    "indicative_timing": re.sub(r"\s+", " ", m.group(2)).strip(),
+                })
+                prev_end = m.end()
+            leftover = text[prev_end:].strip(" .")
+            if leftover:
+                logger.warning(
+                    f"Annex I row {g['num']}: unparsed initiative text left over: "
+                    f"{leftover[:80]!r}")
+
     logger.info(f"Annex I: parsed {len(items)} initiatives from {len(groups)} numbered rows")
     return items
 
@@ -390,21 +424,30 @@ def parse_work_programme() -> pd.DataFrame:
     # Download PDF
     pdf_path = download_cwp(logger)
 
-    # Identify annex pages
-    annex_pages = identify_annex_pages(pdf_path, logger)
+    # Assign every table to its annex by heading position
+    annex_tables, annex_pages = identify_annex_tables(pdf_path, logger)
+
+    if annex_tables.get("III"):
+        skipped = sum(
+            1 for table in annex_tables["III"] for row in table
+            if row and re.fullmatch(r"\d{1,3}\.?", (row[0] or "").strip())
+        )
+        logger.info(
+            f"Annex III (pending proposals): out of scope, skipping "
+            f"{skipped}+ tabled proposals (tracked in agenda_implementation).")
 
     all_items = []
     item_id_counter = 0
 
-    for annex_num in ["I", "II", "III", "IV"]:
-        pages = annex_pages.get(annex_num, [])
-        if not pages:
-            logger.warning(f"No pages identified for Annex {annex_num}")
+    for annex_num in EXTRACTED_ANNEXES:
+        tables = annex_tables.get(annex_num, [])
+        if not tables:
+            logger.warning(f"No tables identified for Annex {annex_num}")
             continue
 
         # Annex I has a bespoke initiative-level layout; parse it directly.
         if annex_num == "I":
-            items = parse_annex_i(pdf_path, pages, logger)
+            items = parse_annex_i(tables, logger)
             for item in items:
                 item_id_counter += 1
                 item["item_id"] = f"WP{item_id_counter:03d}"
@@ -412,14 +455,14 @@ def parse_work_programme() -> pd.DataFrame:
             continue
 
         # Try table extraction first
-        rows = extract_tables_from_pages(pdf_path, pages, logger)
-        items = parse_table_rows(rows, annex_num, logger)
+        items = parse_annex_sparse(tables, annex_num, logger)
 
         # If table extraction yielded too few items, try text fallback
         if len(items) < 3:
             logger.info(f"Table extraction for Annex {annex_num} yielded only "
                         f"{len(items)} items. Trying text fallback...")
-            text_items = extract_text_fallback(pdf_path, pages, annex_num, logger)
+            text_items = extract_text_fallback(
+                pdf_path, annex_pages.get(annex_num, []), annex_num, logger)
             if len(text_items) > len(items):
                 items = text_items
 

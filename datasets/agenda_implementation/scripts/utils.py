@@ -4,7 +4,10 @@ Shared utilities for the agenda-implementation pipeline.
 Logging, directory creation, the CSV/XLSX save helper, the as-of-date helper,
 and the cached HTTP helpers for the EP Open Data API (JSON-LD) and the EUR-Lex
 SPARQL endpoint. The cache (keyed by URL hash, under data/raw/) makes re-runs
-cheap and replayable offline.
+cheap and replayable offline. set_refresh(True) (wired to run_pipeline.py
+--refresh) makes the helpers ignore existing cache files and re-fetch, so a
+later run takes a genuinely new snapshot instead of re-stamping cached
+responses with a new as_of_date.
 """
 
 import hashlib
@@ -22,6 +25,17 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
+
+# When True, the HTTP helpers ignore existing cache files and re-fetch (the
+# fresh responses are still written back to the cache). Set via set_refresh(),
+# which run_pipeline.py --refresh calls before running any step.
+REFRESH = False
+
+
+def set_refresh(value: bool) -> None:
+    """Enable/disable cache-bypass for fetch_json() and sparql_query()."""
+    global REFRESH
+    REFRESH = bool(value)
 
 
 def setup_logging(script_name: str) -> logging.Logger:
@@ -101,7 +115,7 @@ def fetch_json(url: str, params: Optional[Dict] = None, accept: str = None,
     prepared = requests.Request("GET", url, params=params).prepare()
     full_url = prepared.url
     cache = _cache_path(full_url)
-    if use_cache and cache.exists():
+    if use_cache and not REFRESH and cache.exists():
         logger.debug(f"Cache hit: {full_url}")
         return json.loads(cache.read_text(encoding="utf-8"))
 
@@ -149,7 +163,7 @@ def sparql_query(query: str, retries: int = 3, timeout: int = 60,
     params = {"query": query, "format": "application/sparql-results+json"}
     prepared = requests.Request("GET", config.EURLEX_SPARQL, params=params).prepare()
     cache = _cache_path(prepared.url)
-    if use_cache and cache.exists():
+    if use_cache and not REFRESH and cache.exists():
         data = json.loads(cache.read_text(encoding="utf-8"))
     else:
         data = None

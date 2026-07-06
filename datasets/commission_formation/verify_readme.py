@@ -1,9 +1,10 @@
 """
-Verify every numerical claim in README.md against the actual CSV data.
+Verify every numerical claim in README.md, CODEBOOK.md, and SUMMARY.md
+against the actual CSV data, and check that the figures exist.
 
 Usage:
     python verify_readme.py          # report only
-    python verify_readme.py --fix    # report + fix mismatches in-place
+    python verify_readme.py --fix    # report + fix README mismatches in-place
 """
 
 import argparse
@@ -17,6 +18,17 @@ import pandas as pd
 from config import BASE_DIR, OUTPUT_DIR
 
 README_PATH = BASE_DIR / "README.md"
+CODEBOOK_PATH = BASE_DIR / "CODEBOOK.md"
+SUMMARY_PATH = BASE_DIR / "SUMMARY.md"
+FIGURES_DIR = BASE_DIR / "figures"
+
+FIGURE_FILES = [
+    "college_composition.png",
+    "investiture_vote.png",
+    "mission_commitments.png",
+    "work_programme.png",
+    "formation_timeline.png",
+]
 
 # CSV file basenames
 CSV_FILES = {
@@ -73,6 +85,7 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     actuals["comm_renew_count"] = int(party_counts.get("Renew", 0))
     actuals["comm_ecr_count"] = int(party_counts.get("ECR", 0))
     actuals["comm_pfe_count"] = int(party_counts.get("PfE", 0))
+    actuals["comm_independent_count"] = int(party_counts.get("Independent", 0))
     actuals["comm_epp_pct"] = round(
         actuals["comm_epp_count"] / len(comm) * 100
     )
@@ -99,6 +112,10 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
         role_counts.get("Commissioner", 0)
     )
     actuals["comm_countries"] = comm["country"].nunique()
+
+    # Rank-and-file female commissioners (for SUMMARY's "6 of 20")
+    rank_file = comm[comm["role"] == "Commissioner"]
+    actuals["comm_rankfile_female"] = int((rank_file["gender"] == "F").sum())
 
     # --- C. Investiture vote totals ---
     vote_counts = vote["vote"].value_counts()
@@ -177,7 +194,22 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     actuals["cmt_type_legislative"] = int(type_counts.get("legislative", 0))
     actuals["cmt_type_other"] = int(type_counts.get("other", 0))
 
+    actuals["cmt_section_nulls"] = int(cmt["section_heading"].isna().sum())
+
+    # Boilerplate
+    boiler = cmt[cmt["is_boilerplate"]]
+    actuals["cmt_boiler_count"] = len(boiler)
+    actuals["cmt_boiler_pct"] = round(len(boiler) / len(cmt) * 100)
+    actuals["cmt_boiler_templates"] = boiler["commitment_text"].nunique()
+    actuals["cmt_distinct_texts"] = cmt["commitment_text"].nunique()
+    boiler_types = boiler["commitment_type"].value_counts()
+    actuals["cmt_boiler_legislative"] = int(boiler_types.get("legislative", 0))
+    actuals["cmt_boiler_report"] = int(boiler_types.get("report", 0))
+    actuals["cmt_boiler_review"] = int(boiler_types.get("review", 0))
+
     by_comm = cmt.groupby("commissioner_id").size().sort_values(ascending=False)
+    actuals["cmt_per_comm_min"] = int(by_comm.min())
+    actuals["cmt_per_comm_max"] = int(by_comm.max())
     # Map commissioner_id to last name for the top commissioners
     comm_lookup = dict(
         zip(comm["commissioner_id"], comm["last_name"])
@@ -207,6 +239,13 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     actuals["hearing_date_max"] = hear_dates.max().strftime("%Y-%m-%d")
     actuals["hearing_all_approved"] = (hear["outcome"] == "approved").all()
 
+    day_counts = hear["hearing_date"].value_counts()
+    actuals["hearing_nov04"] = int(day_counts.get("2024-11-04", 0))
+    actuals["hearing_nov05"] = int(day_counts.get("2024-11-05", 0))
+    actuals["hearing_nov06"] = int(day_counts.get("2024-11-06", 0))
+    actuals["hearing_nov07"] = int(day_counts.get("2024-11-07", 0))
+    actuals["hearing_nov12"] = int(day_counts.get("2024-11-12", 0))
+
     main_week = hear[
         (hear["hearing_date"] >= "2024-11-04")
         & (hear["hearing_date"] <= "2024-11-07")
@@ -217,16 +256,37 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
     annex_counts = wp["annex"].value_counts()
     actuals["wp_annex_I"] = int(annex_counts.get("I", 0))
     actuals["wp_annex_II"] = int(annex_counts.get("II", 0))
-    actuals["wp_annex_III"] = int(annex_counts.get("III", 0))
     actuals["wp_annex_IV"] = int(annex_counts.get("IV", 0))
+    actuals["wp_annex_V"] = int(annex_counts.get("V", 0))
 
-    # Annex IV type breakdown (case-insensitive via title case)
+    # Annex I nature of act and numbered-row unpacking
+    annex_i = wp[wp["annex"] == "I"]
+    i_types = annex_i["type_of_act"].value_counts()
+    actuals["wp_i_legislative"] = int(i_types.get("Legislative", 0))
+    actuals["wp_i_nonlegislative"] = int(i_types.get("Non-legislative", 0))
+    actuals["wp_i_either"] = int(
+        i_types.get("Non-legislative or legislative", 0)
+    )
+    actuals["wp_i_numbered_rows"] = int(annex_i["item_number"].nunique())
+
+    # type_of_act null count (should be exactly the Annex II rows)
+    actuals["wp_typeact_nulls"] = int(wp["type_of_act"].isna().sum())
+    actuals["wp_timing_nulls"] = int(wp["indicative_timing"].isna().sum())
+    actuals["wp_description_nulls"] = int(wp["description"].isna().sum())
+    actuals["wp_policyarea_nulls"] = int(wp["policy_area"].isna().sum())
+
+    # Annex IV / V instrument breakdowns (upper-cased in data)
     annex_iv = wp[wp["annex"] == "IV"]
     iv_types = annex_iv["type_of_act"].str.strip().str.title().value_counts()
     actuals["wp_iv_regulation"] = int(iv_types.get("Regulation", 0))
     actuals["wp_iv_directive"] = int(iv_types.get("Directive", 0))
     actuals["wp_iv_decision"] = int(iv_types.get("Decision", 0))
     actuals["wp_iv_recommendation"] = int(iv_types.get("Recommendation", 0))
+
+    annex_v = wp[wp["annex"] == "V"]
+    v_types = annex_v["type_of_act"].str.strip().str.title().value_counts()
+    actuals["wp_v_regulation"] = int(v_types.get("Regulation", 0))
+    actuals["wp_v_decision"] = int(v_types.get("Decision", 0))
 
     # --- J. Timeline ---
     tl_dates = pd.to_datetime(tl["date"])
@@ -238,7 +298,7 @@ def compute_actuals(data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
 
 
 # ============================================================
-# Extract README claims via targeted regex
+# Extract claims via targeted regex
 # ============================================================
 
 
@@ -311,6 +371,8 @@ CHECK_DEFINITIONS = [
      r"EPP dominates with \d+ commissioners \((\d+)%\)", 1, _int, "Commissioner Breakdowns"),
     ("S&D count", "comm_sd_count",
      r"S&D and Renew with (\d+) each", 1, _int, "Commissioner Breakdowns"),
+    ("Independent count", "comm_independent_count",
+     r"(\d+) independent \(Kadis", 1, _int, "Commissioner Breakdowns"),
     ("Gender female count", "comm_female_count",
      r"(\d+) women \(\d+%\)", 1, _int, "Commissioner Breakdowns"),
     ("Gender female pct", "comm_female_pct",
@@ -522,33 +584,87 @@ CHECK_DEFINITIONS = [
     ("High confidence in code comment", "cmt_high",
      r"# (\d+) rows", 1, _int, "Commitments"),
 
+    # Boilerplate claims
+    ("Boilerplate count", "cmt_boiler_count",
+     r"(\d+) of the \d+ rows \(\d+%\) are boilerplate", 1, _int, "Commitments"),
+    ("Boilerplate total", "rows_commitments",
+     r"\d+ of the (\d+) rows \(\d+%\) are boilerplate", 1, _int, "Commitments"),
+    ("Boilerplate pct", "cmt_boiler_pct",
+     r"\d+ of the \d+ rows \((\d+)%\) are boilerplate", 1, _int, "Commitments"),
+    ("Boilerplate template count", "cmt_boiler_templates",
+     r"covering just (\d+) distinct template texts", 1, _int, "Commitments"),
+    ("Distinct commitment texts", "cmt_distinct_texts",
+     r"(\d+) distinct commitment texts overall", 1, _int, "Commitments"),
+    ("Boilerplate legislative", "cmt_boiler_legislative",
+     r"includes (\d+) of the \d+ legislative", 1, _int, "Commitments"),
+    ("Boilerplate legislative total", "cmt_type_legislative",
+     r"includes \d+ of the (\d+) legislative", 1, _int, "Commitments"),
+    ("Boilerplate report", "cmt_boiler_report",
+     r"(\d+) of the \d+ report", 1, _int, "Commitments"),
+    ("Boilerplate report total", "cmt_type_report",
+     r"\d+ of the (\d+) report", 1, _int, "Commitments"),
+    ("Boilerplate review", "cmt_boiler_review",
+     r"(\d+) of the \d+ review", 1, _int, "Commitments"),
+    ("Boilerplate review total", "cmt_type_review",
+     r"\d+ of the (\d+) review", 1, _int, "Commitments"),
+    ("Boilerplate rows (table 2)", "cmt_boiler_count",
+     r"more than 13 of the 26 letters \((\d+) rows\)", 1, _int, "Commitments"),
+
     # --- H. Hearings ---
     ("Hearings count (prose)", "rows_hearings",
      r"(\d+) confirmation hearings held", 1, _int, "Hearings"),
-    ("Hearings main week count", "hearing_main_week_count",
+    ("Hearings main block count", "hearing_main_week_count",
      r"4-7 November \((\d+) hearings", 1, _int, "Hearings"),
+    ("Hearings on 4 Nov", "hearing_nov04",
+     r"hearings: (\d+) on 4 Nov, \d+ on 5 Nov, \d+ on 6 Nov, \d+ on 7 Nov",
+     1, _int, "Hearings"),
+    ("Hearings on 5 Nov", "hearing_nov05",
+     r"hearings: \d+ on 4 Nov, (\d+) on 5 Nov, \d+ on 6 Nov, \d+ on 7 Nov",
+     1, _int, "Hearings"),
+    ("Hearings on 6 Nov", "hearing_nov06",
+     r"hearings: \d+ on 4 Nov, \d+ on 5 Nov, (\d+) on 6 Nov, \d+ on 7 Nov",
+     1, _int, "Hearings"),
+    ("Hearings on 7 Nov", "hearing_nov07",
+     r"hearings: \d+ on 4 Nov, \d+ on 5 Nov, \d+ on 6 Nov, (\d+) on 7 Nov",
+     1, _int, "Hearings"),
+    ("Hearings on 12 Nov", "hearing_nov12",
+     r"on 12 November \((\d+) hearings\)", 1, _int, "Hearings"),
 
     # --- I. Work programme annex breakdown ---
     ("WP total (prose)", "rows_wp",
-     r"(\d+) items from the four annexes", 1, _int, "Work Programme"),
+     r"(\d+) items from the annexes of the CWP 2025", 1, _int, "Work Programme"),
     ("WP Annex I", "wp_annex_I",
-     r"\| I .* \| (\d+) \|", 1, _int, "Work Programme"),
+     r"\| I \(New initiatives\) \| (\d+) \|", 1, _int, "Work Programme"),
     ("WP Annex II", "wp_annex_II",
-     r"\| II .* \| (\d+) \|", 1, _int, "Work Programme"),
-    ("WP Annex III", "wp_annex_III",
-     r"\| III .* \| (\d+) \|", 1, _int, "Work Programme"),
+     r"\| II \(Evaluations and fitness checks\) \| (\d+) \|", 1, _int, "Work Programme"),
     ("WP Annex IV", "wp_annex_IV",
-     r"\| IV .* \| (\d+) \|", 1, _int, "Work Programme"),
-    ("WP Annex I new initiatives", "wp_annex_I",
+     r"\| IV \(Withdrawals\) \| (\d+) \|", 1, _int, "Work Programme"),
+    ("WP Annex V", "wp_annex_V",
+     r"\| V \(Envisaged repeals\) \| (\d+) \|", 1, _int, "Work Programme"),
+    ("WP Annex I initiatives (prose)", "wp_annex_I",
+     r"Annex I's (\d+) initiatives are unpacked", 1, _int, "Work Programme"),
+    ("WP Annex I numbered rows", "wp_i_numbered_rows",
+     r"unpacked from (\d+) numbered rows", 1, _int, "Work Programme"),
+    ("WP Annex I non-legislative", "wp_i_nonlegislative",
+     r"(\d+) Non-legislative, \d+ Legislative \(matching", 1, _int, "Work Programme"),
+    ("WP Annex I legislative", "wp_i_legislative",
+     r"\d+ Non-legislative, (\d+) Legislative \(matching", 1, _int, "Work Programme"),
+    ("WP Annex I new initiatives (use case)", "wp_annex_I",
      r"the (\d+) new CWP initiatives in Annex I", 1, _int, "Work Programme"),
     ("WP IV Regulations", "wp_iv_regulation",
-     r"(\d+) regulations", 1, _int, "Work Programme"),
+     r"naming (\d+) regulations", 1, _int, "Work Programme"),
     ("WP IV Directives", "wp_iv_directive",
-     r"(\d+) directives", 1, _int, "Work Programme"),
+     r"naming \d+ regulations, (\d+) directives", 1, _int, "Work Programme"),
     ("WP IV Decisions", "wp_iv_decision",
-     r"(\d+) decisions", 1, _int, "Work Programme"),
+     r"naming \d+ regulations, \d+ directives, (\d+) decisions", 1, _int, "Work Programme"),
     ("WP IV Recommendation", "wp_iv_recommendation",
-     r"(\d+) recommendation", 1, _int, "Work Programme"),
+     r"and (\d+) recommendation in the withdrawn", 1, _int, "Work Programme"),
+    ("WP V Regulations", "wp_v_regulation",
+     r"acts in force \((\d+) regulations, \d+ decision\)", 1, _int, "Work Programme"),
+    ("WP V Decisions", "wp_v_decision",
+     r"acts in force \(\d+ regulations, (\d+) decision\)", 1, _int, "Work Programme"),
+    ("WP type_of_act nulls (table 5)", "wp_typeact_nulls",
+     r"null exactly for the (\d+) Annex II rows", 1, _int, "Work Programme"),
 
     # --- J. Timeline ---
     ("Timeline count", "rows_timeline",
@@ -566,18 +682,226 @@ CHECK_DEFINITIONS = [
 ]
 
 
-def extract_readme_claims(
-    readme_text: str,
-) -> List[Tuple[str, str, str, Optional[Any], str]]:
+# --- CODEBOOK.md checks (same tuple format) ---
+CODEBOOK_CHECKS = [
+    ("commissioners rows (heading)", "rows_commissioners",
+     r"## 1\. `commissioners\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+    ("commitments rows (heading)", "rows_commitments",
+     r"## 2\. `mission_letter_commitments\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+    ("hearings rows (heading)", "rows_hearings",
+     r"## 3\. `hearings\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+    ("vote rows (heading)", "rows_vote",
+     r"## 4\. `investiture_vote\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+    ("wp rows (heading)", "rows_wp",
+     r"## 5\. `work_programme_items\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+    ("timeline rows (heading)", "rows_timeline",
+     r"## 6\. `formation_timeline\.csv` \((\d+) rows\)", 1, _int, "Codebook Row Counts"),
+
+    ("EPP count (coding note)", "comm_epp_count",
+     r"EPP therefore has (\d+)\s+of 27 members", 1, _int, "Codebook Commissioners"),
+    ("EPP pct (coding note)", "comm_epp_pct",
+     r"EPP therefore has \d+\s+of 27 members \((\d+)%\)", 1, _int, "Codebook Commissioners"),
+
+    ("section_heading nulls", "cmt_section_nulls",
+     r"\| `section_heading` \| string \| (\d+) \|", 1, _int, "Codebook Commitments"),
+    ("high confidence rows", "cmt_high",
+     r"`high` \(bullet-point extraction, (\d+) rows\)", 1, _int, "Codebook Commitments"),
+    ("medium confidence rows", "cmt_medium",
+     r"`medium` \(directive/legislative, (\d+) rows\)", 1, _int, "Codebook Commitments"),
+    ("distinct texts", "cmt_distinct_texts",
+     r"(\d+) distinct texts across the", 1, _int, "Codebook Commitments"),
+    ("boilerplate count", "cmt_boiler_count",
+     r"\*\*(\d+) of the \d+ rows \(\d+%\) are boilerplate\*\*", 1, _int, "Codebook Commitments"),
+    ("boilerplate total", "rows_commitments",
+     r"\*\*\d+ of the (\d+) rows \(\d+%\) are boilerplate\*\*", 1, _int, "Codebook Commitments"),
+    ("boilerplate pct", "cmt_boiler_pct",
+     r"\*\*\d+ of the \d+ rows \((\d+)%\) are boilerplate\*\*", 1, _int, "Codebook Commitments"),
+    ("boilerplate templates", "cmt_boiler_templates",
+     r"covering just (\d+) distinct\s+template texts", 1, _int, "Codebook Commitments"),
+    ("boilerplate legislative", "cmt_boiler_legislative",
+     r"includes (\d+) of the\s+\d+ `legislative`", 1, _int, "Codebook Commitments"),
+    ("boilerplate legislative total", "cmt_type_legislative",
+     r"includes \d+ of the\s+(\d+) `legislative`", 1, _int, "Codebook Commitments"),
+    ("boilerplate report", "cmt_boiler_report",
+     r"(\d+) of the\s+\d+ `report`", 1, _int, "Codebook Commitments"),
+    ("boilerplate report total", "cmt_type_report",
+     r"\d+ of the\s+(\d+) `report`", 1, _int, "Codebook Commitments"),
+    ("boilerplate review", "cmt_boiler_review",
+     r"(\d+) of the\s+\d+ `review`", 1, _int, "Codebook Commitments"),
+    ("boilerplate review total", "cmt_type_review",
+     r"\d+ of the\s+(\d+) `review`", 1, _int, "Codebook Commitments"),
+    ("per-commissioner min", "cmt_per_comm_min",
+     r"per-commissioner totals \((\d+)-\d+ per letter\)", 1, _int, "Codebook Commitments"),
+    ("per-commissioner max", "cmt_per_comm_max",
+     r"per-commissioner totals \(\d+-(\d+) per letter\)", 1, _int, "Codebook Commitments"),
+
+    ("hearings on 4 Nov", "hearing_nov04",
+     r"(\d+) hearings on 4 Nov, \d+ on 5 Nov", 1, _int, "Codebook Hearings"),
+    ("hearings on 5 Nov", "hearing_nov05",
+     r"\d+ hearings on 4 Nov, (\d+) on 5 Nov", 1, _int, "Codebook Hearings"),
+    ("hearings on 6 Nov", "hearing_nov06",
+     r"on 5 Nov,\s+(\d+) on 6 Nov", 1, _int, "Codebook Hearings"),
+    ("hearings on 7 Nov", "hearing_nov07",
+     r"on 6 Nov, (\d+) on 7 Nov", 1, _int, "Codebook Hearings"),
+    ("hearings on 12 Nov", "hearing_nov12",
+     r"on 7 Nov, and (\d+) on 12 Nov", 1, _int, "Codebook Hearings"),
+
+    ("WP annex I count", "wp_annex_I",
+     r"`I` \(new initiatives, (\d+)\)", 1, _int, "Codebook Work Programme"),
+    ("WP annex II count", "wp_annex_II",
+     r"`II` \(annual plan on evaluations and fitness checks, (\d+)\)", 1, _int, "Codebook Work Programme"),
+    ("WP annex IV count", "wp_annex_IV",
+     r"`IV` \(withdrawals of pending proposals, (\d+)\)", 1, _int, "Codebook Work Programme"),
+    ("WP annex V count", "wp_annex_V",
+     r"`V` \(envisaged repeals of acts in force, (\d+)\)", 1, _int, "Codebook Work Programme"),
+    ("WP annex I unpacked", "wp_annex_I",
+     r"(\d+) initiatives\s+are unpacked from \d+ numbered rows", 1, _int, "Codebook Work Programme"),
+    ("WP annex I numbered rows", "wp_i_numbered_rows",
+     r"\d+ initiatives\s+are unpacked from (\d+) numbered rows", 1, _int, "Codebook Work Programme"),
+    ("WP annex I legislative", "wp_i_legislative",
+     r"`Legislative` (\d+), `Non-legislative` \d+", 1, _int, "Codebook Work Programme"),
+    ("WP annex I non-legislative", "wp_i_nonlegislative",
+     r"`Legislative` \d+, `Non-legislative` (\d+)", 1, _int, "Codebook Work Programme"),
+    ("WP type_of_act nulls (column)", "wp_typeact_nulls",
+     r"\| `type_of_act` \| string \| (\d+) \|", 1, _int, "Codebook Work Programme"),
+    ("WP type_of_act nulls (note)", "wp_typeact_nulls",
+     r"exactly for the (\d+) Annex II rows", 1, _int, "Codebook Work Programme"),
+    ("WP indicative_timing nulls", "wp_timing_nulls",
+     r"\| `indicative_timing` \| string \| (\d+) \|", 1, _int, "Codebook Work Programme"),
+    ("WP description nulls", "wp_description_nulls",
+     r"\| `description` \| string \| (\d+) \|", 1, _int, "Codebook Work Programme"),
+    ("WP policy_area nulls", "wp_policyarea_nulls",
+     r"\| `policy_area` \| string \| (\d+) \|", 1, _int, "Codebook Work Programme"),
+    ("WP IV regulations", "wp_iv_regulation",
+     r"(\d+) `REGULATION`, \d+\s+`DIRECTIVE`", 1, _int, "Codebook Work Programme"),
+    ("WP IV directives", "wp_iv_directive",
+     r"\d+ `REGULATION`, (\d+)\s+`DIRECTIVE`", 1, _int, "Codebook Work Programme"),
+    ("WP IV decisions", "wp_iv_decision",
+     r"`DIRECTIVE`, (\d+) `DECISION`, \d+ `RECOMMENDATION`", 1, _int, "Codebook Work Programme"),
+    ("WP IV recommendations", "wp_iv_recommendation",
+     r"`DIRECTIVE`, \d+ `DECISION`, (\d+) `RECOMMENDATION`", 1, _int, "Codebook Work Programme"),
+    ("WP V regulations", "wp_v_regulation",
+     r"\((\d+) `REGULATION`, \d+ `DECISION`\)", 1, _int, "Codebook Work Programme"),
+    ("WP V decisions", "wp_v_decision",
+     r"\(\d+ `REGULATION`, (\d+) `DECISION`\)", 1, _int, "Codebook Work Programme"),
+
+    ("boilerplate rows (limitations)", "cmt_boiler_count",
+     r"(\d+) of the \d+ commitment rows", 1, _int, "Codebook Limitations"),
+    ("boilerplate rows total (limitations)", "rows_commitments",
+     r"\d+ of the (\d+) commitment rows", 1, _int, "Codebook Limitations"),
+]
+
+
+# --- SUMMARY.md checks (same tuple format) ---
+SUMMARY_CHECKS = [
+    ("EPP members", "comm_epp_count",
+     r"EPP \((\d+) members, \d+%\)", 1, _int, "Summary College"),
+    ("EPP pct", "comm_epp_pct",
+     r"EPP \(\d+ members, (\d+)%\)", 1, _int, "Summary College"),
+    ("women pct", "comm_female_pct",
+     r"(\d+)% women \(\d+ of \d+\)", 1, _int, "Summary College"),
+    ("women count", "comm_female_count",
+     r"\d+% women \((\d+) of \d+\)", 1, _int, "Summary College"),
+    ("college size", "rows_commissioners",
+     r"\d+% women \(\d+ of (\d+)\)", 1, _int, "Summary College"),
+    ("EVP count", "comm_evp_count",
+     r"(\d+) Executive Vice-Presidencies", 1, _int, "Summary College"),
+    ("rank-and-file women", "comm_rankfile_female",
+     r"only \*\*(\d+)\s+of \d+\*\* rank-and-file", 1, _int, "Summary College"),
+    ("rank-and-file total", "comm_commissioner_count",
+     r"only \*\*\d+\s+of (\d+)\*\* rank-and-file", 1, _int, "Summary College"),
+
+    ("vote for", "vote_for",
+     r"\*\*(\d+) for / \d+ against / \d+ abstain\*\*", 1, _int, "Summary Vote"),
+    ("vote against", "vote_against",
+     r"\*\*\d+ for / (\d+) against / \d+ abstain\*\*", 1, _int, "Summary Vote"),
+    ("vote abstain", "vote_abstain",
+     r"\*\*\d+ for / \d+ against / (\d+) abstain\*\*", 1, _int, "Summary Vote"),
+    ("PPE for", "party_PPE_for",
+     r"PPE \((\d+) of \d+\)", 1, _int, "Summary Vote"),
+    ("PPE total", "party_PPE_total",
+     r"PPE \(\d+ of (\d+)\)", 1, _int, "Summary Vote"),
+    ("S&D for", "party_SandD_for",
+     r"S&D \((\d+)\s+of \d+\)", 1, _int, "Summary Vote"),
+    ("S&D total", "party_SandD_total",
+     r"S&D \(\d+\s+of (\d+)\)", 1, _int, "Summary Vote"),
+    ("Renew for", "party_Renew_for",
+     r"Renew \((\d+) of \d+\)", 1, _int, "Summary Vote"),
+    ("Renew total", "party_Renew_total",
+     r"Renew \(\d+ of (\d+)\)", 1, _int, "Summary Vote"),
+    ("Greens for", "party_Verts_ALE_for",
+     r"Greens/EFA \((\d+) of \d+\)", 1, _int, "Summary Vote"),
+    ("Greens total", "party_Verts_ALE_total",
+     r"Greens/EFA \(\d+ of (\d+)\)", 1, _int, "Summary Vote"),
+    ("ECR for", "party_ECR_for",
+     r"split \((\d+) for, \d+ against, \d+ abstentions\)", 1, _int, "Summary Vote"),
+    ("ECR against", "party_ECR_against",
+     r"split \(\d+ for, (\d+) against, \d+ abstentions\)", 1, _int, "Summary Vote"),
+    ("ECR abstain", "party_ECR_abstain",
+     r"split \(\d+ for, \d+ against, (\d+) abstentions\)", 1, _int, "Summary Vote"),
+
+    ("commitments total", "rows_commitments",
+     r"\*\*(\d+) commitments\*\*", 1, _int, "Summary Commitments"),
+    ("mission letters", "cmt_distinct_commissioners",
+     r"extracted from the (\d+) mission letters", 1, _int, "Summary Commitments"),
+    ("type other", "cmt_type_other",
+     r"`other` (\d+)", 1, _int, "Summary Commitments"),
+    ("type coordination", "cmt_type_coordination",
+     r"`coordination` (\d+)", 1, _int, "Summary Commitments"),
+    # Matches the figure annotation in mission_commitments.png, which derives
+    # the same number from the data at plot time.
+    ("legislative count (figure claim)", "cmt_type_legislative",
+     r"only \*\*(\d+) are explicitly", 1, _int, "Summary Commitments"),
+    ("per-portfolio min", "cmt_per_comm_min",
+     r"by portfolio \((\d+) to \d+\)", 1, _int, "Summary Commitments"),
+    ("per-portfolio max", "cmt_per_comm_max",
+     r"by portfolio \(\d+ to (\d+)\)", 1, _int, "Summary Commitments"),
+    ("boilerplate count", "cmt_boiler_count",
+     r"(\d+) of the \d+ rows \(\d+%\) are\s+such boilerplate", 1, _int, "Summary Commitments"),
+    ("boilerplate total", "rows_commitments",
+     r"\d+ of the (\d+) rows \(\d+%\) are\s+such boilerplate", 1, _int, "Summary Commitments"),
+    ("boilerplate pct", "cmt_boiler_pct",
+     r"\d+ of the \d+ rows \((\d+)%\) are\s+such boilerplate", 1, _int, "Summary Commitments"),
+
+    # Matches the figure title in work_programme.png (derived from data).
+    ("WP total (figure claim)", "rows_wp",
+     r"\*\*(\d+) items\*\*: \d+ new initiatives", 1, _int, "Summary Work Programme"),
+    ("WP annex I", "wp_annex_I",
+     r"\*\*\d+ items\*\*: (\d+) new initiatives", 1, _int, "Summary Work Programme"),
+    ("WP annex II", "wp_annex_II",
+     r"(\d+) evaluations and fitness checks \(II\)", 1, _int, "Summary Work Programme"),
+    ("WP annex IV", "wp_annex_IV",
+     r"\*\*(\d+) withdrawals of\s+pending proposals \(IV\)\*\*", 1, _int, "Summary Work Programme"),
+    ("WP annex V", "wp_annex_V",
+     r"\*\*(\d+) envisaged repeals of acts in force \(V\)\*\*", 1, _int, "Summary Work Programme"),
+    ("WP annex I legislative", "wp_i_legislative",
+     r"only \*\*(\d+) are legislative\*\*", 1, _int, "Summary Work Programme"),
+
+    ("timeline span", "timeline_day_span",
+     r"\*\*(\d+) days\*\*", 1, _int, "Summary Timeline"),
+]
+
+
+DOC_CHECKS = [
+    ("README.md", README_PATH, CHECK_DEFINITIONS),
+    ("CODEBOOK.md", CODEBOOK_PATH, CODEBOOK_CHECKS),
+    ("SUMMARY.md", SUMMARY_PATH, SUMMARY_CHECKS),
+]
+
+
+def extract_claims(
+    text: str,
+    definitions: List[Tuple],
+) -> List[Tuple[str, str, Optional[Any], str]]:
     """
-    Parse README and extract claimed values.
+    Parse a document and extract claimed values.
 
     Returns list of (check_name, actual_key, claimed_value_or_None, section_label).
     None means the pattern was not found.
     """
     results = []
-    for check_name, actual_key, pattern, group_idx, transform, section in CHECK_DEFINITIONS:
-        m = re.search(pattern, readme_text, re.MULTILINE)
+    for check_name, actual_key, pattern, group_idx, transform, section in definitions:
+        m = re.search(pattern, text, re.MULTILINE)
         if m:
             raw = m.group(group_idx)
             try:
@@ -608,11 +932,37 @@ def compare(
     for check_name, actual_key, claimed, section in claims:
         expected = actuals.get(actual_key)
         if claimed is None:
-            # Pattern not found — treat as a skip, not a failure
+            # Pattern not found — treat as a failure so a doc rewrite that
+            # silently drops a checked claim cannot produce a green run.
             results.append((check_name, expected, "NOT FOUND", False, section))
         else:
             passed = claimed == expected
             results.append((check_name, expected, claimed, passed, section))
+    return results
+
+
+# ============================================================
+# Figure checks
+# ============================================================
+
+
+def check_figures() -> List[Tuple[str, Any, Any, bool, str]]:
+    """Verify the summary figures exist and are non-empty.
+
+    The numbers embedded in the figures (annotation text, titles) are derived
+    from the CSVs at plot time by make_summary.py; the SUMMARY.md checks above
+    pin the same quantities, so existence plus the SUMMARY prose checks cover
+    the figure-embedded numbers.
+    """
+    results = []
+    for fname in FIGURE_FILES:
+        path = FIGURES_DIR / fname
+        exists = path.exists() and path.stat().st_size > 0
+        results.append((
+            f"figure {fname}", "present, non-empty",
+            "present, non-empty" if exists else "MISSING/EMPTY",
+            exists, "Figures",
+        ))
     return results
 
 
@@ -673,16 +1023,16 @@ def fix_readme(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Verify README.md statistics against CSV data."
+        description="Verify README/CODEBOOK/SUMMARY statistics against CSV data."
     )
     parser.add_argument(
         "--fix",
         action="store_true",
-        help="Fix mismatches in README.md in-place.",
+        help="Fix mismatches in README.md in-place (README only).",
     )
     args = parser.parse_args()
 
-    print("README Statistics Verification")
+    print("Documentation Statistics Verification")
     print("=" * 40)
     print()
 
@@ -690,50 +1040,60 @@ def main() -> None:
     data = load_data()
     actuals = compute_actuals(data)
 
-    # Read README
-    readme_text = README_PATH.read_text(encoding="utf-8")
-
-    # Extract claims and compare
-    claims = extract_readme_claims(readme_text)
-    results = compare(actuals, claims)
-
-    # Print report grouped by section
-    current_section = None
     total = 0
     passed = 0
     failed = 0
-    not_found = 0
+    readme_results = None
 
-    for check_name, expected, claimed, ok, section in results:
-        if section != current_section:
-            current_section = section
-            print(f"{section}")
+    for doc_name, doc_path, definitions in DOC_CHECKS:
+        text = doc_path.read_text(encoding="utf-8")
+        claims = extract_claims(text, definitions)
+        results = compare(actuals, claims)
+        if doc_name == "README.md":
+            readme_results = results
 
+        print(f"=== {doc_name} ===")
+        current_section = None
+        for check_name, expected, claimed, ok, section in results:
+            if section != current_section:
+                current_section = section
+                print(f"{section}")
+
+            total += 1
+            if claimed == "NOT FOUND":
+                failed += 1
+                print(f"  [FAIL] {check_name}: pattern not found in {doc_name}")
+            elif ok:
+                passed += 1
+                print(f"  [PASS] {check_name}: {expected} == {claimed}")
+            else:
+                failed += 1
+                print(
+                    f"  [FAIL] {check_name}: {doc_name} says {claimed}, "
+                    f"data has {expected}"
+                )
+        print()
+
+    # Figures
+    print("=== figures/ ===")
+    for check_name, expected, claimed, ok, section in check_figures():
         total += 1
-        if claimed == "NOT FOUND":
-            not_found += 1
-            print(f"  [SKIP] {check_name}: pattern not found in README")
-        elif ok:
+        if ok:
             passed += 1
-            print(f"  [PASS] {check_name}: {expected} == {claimed}")
+            print(f"  [PASS] {check_name}: {claimed}")
         else:
             failed += 1
-            print(
-                f"  [FAIL] {check_name}: README says {claimed}, "
-                f"data has {expected}"
-            )
-
+            print(f"  [FAIL] {check_name}: {claimed}")
     print()
-    print("-" * 40)
-    print(
-        f"Summary: {passed} passed, {failed} failed, "
-        f"{not_found} skipped ({total} total checks)"
-    )
 
-    if args.fix and failed > 0:
+    print("-" * 40)
+    print(f"Summary: {passed} passed, {failed} failed ({total} total checks)")
+
+    if args.fix and failed > 0 and readme_results is not None:
+        readme_text = README_PATH.read_text(encoding="utf-8")
         failure_set = [
             (name, exp, claimed, ok, sec)
-            for name, exp, claimed, ok, sec in results
+            for name, exp, claimed, ok, sec in readme_results
             if not ok and claimed != "NOT FOUND"
         ]
         fixed_text, fixes = fix_readme(readme_text, actuals, failure_set)
@@ -744,7 +1104,8 @@ def main() -> None:
             for fix_desc in fixes:
                 print(f"  - {fix_desc}")
         else:
-            print("\nNo fixable mismatches found.")
+            print("\nNo fixable README mismatches found "
+                  "(CODEBOOK/SUMMARY must be fixed by hand).")
     elif args.fix and failed == 0:
         print("\nAll checks passed — nothing to fix.")
 

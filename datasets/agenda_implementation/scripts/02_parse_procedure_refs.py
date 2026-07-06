@@ -3,7 +3,8 @@
 Extract the COM / interinstitutional procedure references embedded in the CWP
 work-programme prose and emit one row per (agenda_item x procedure reference).
 
-These references (mostly Annex III/IV) are the join key to the EP Open Data API.
+These references (the Annex IV withdrawals) are the join key to the EP Open
+Data API; they sit in the "References: ..." part of the description text.
 Annex I new initiatives carry no reference yet and are handled later (script 05);
 manual references in data/manual/legislative_commitments.csv are also merged.
 No network access.
