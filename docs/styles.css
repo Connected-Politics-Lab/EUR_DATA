@@ -8,24 +8,51 @@
   margin-right: 10px;
 }
 
-/* Bootstrap gives each footer cell an equal third of the width, which wraps the
-   funding statement onto a second line beside the lockup. Let the left cell size
-   to its content instead, at the breakpoint above which the footer is a row. */
-@media (min-width: 768px) {
+/* The EACEA disclaimer, which occupies the footer's centre slot. */
+.eu-disclaimer {
+  font-size: 0.9em;
+  line-height: 1.4;
+  margin-top: 0.4em;
+}
+
+/* Narrow and medium screens: stack the three footer cells full width and
+   centre them, with the lockup above the funding statement. Bootstrap only
+   stacks below 576px, but between there and 992px the cells are too cramped to
+   sit side by side once the lockup and the disclaimer are in them. */
+@media (max-width: 991.98px) {
+  .eu-lockup {
+    display: block;
+    margin: 0 auto 0.5em;
+  }
+
+  .nav-footer-left,
+  .nav-footer-center,
+  .nav-footer-right {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+}
+
+/* Wide screens: funding statement left, maintainer right, and the disclaimer
+   reordered onto a full-width row of its own beneath them. The left cell sizes
+   to its content and takes up the slack, so the maintainer line is not crushed
+   into a narrow column. */
+@media (min-width: 992px) {
   .nav-footer-left {
     flex: 1 1 auto;
   }
 
-  .nav-footer-center {
-    flex: 0 1 auto;
+  .nav-footer-right {
+    order: 2;
+    flex: 0 0 auto;
   }
-}
 
-/* Below that breakpoint the statement wraps raggedly beside the lockup, so
-   stack the lockup above the text instead. */
-@media (max-width: 767.98px) {
-  .eu-lockup {
-    display: block;
-    margin: 0 auto 0.5em;
+  .nav-footer-center {
+    order: 3;
+    flex: 1 1 100%;
+  }
+
+  .eu-disclaimer {
+    text-align: left;
   }
 }
