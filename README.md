@@ -69,7 +69,7 @@ resolves to the latest release.
 ## Acknowledgement
 
 Co-funded by the European Union under the Erasmus+ Programme, Jean Monnet
-Actions (grant 101127178). Views and opinions expressed are those of the
+Actions (grant 101127178). Views and opinions expressed are however those of the
 author(s) only and do not necessarily reflect those of the European Union or
 the European Education and Culture Executive Agency (EACEA). Neither the
 European Union nor EACEA can be held responsible for them.
