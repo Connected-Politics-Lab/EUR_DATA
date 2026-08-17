@@ -5,7 +5,7 @@ project:
     - "*.qmd"
   resources:
     - assets/charts/*.csv
-    - assets/eu-emblem.png
+    - assets/eu-cofunded-en.png
     - oer/**
     - datasets/**/figures/*.png
 
@@ -16,7 +16,7 @@ website:
   repo-url: "https://github.com/Connected-Politics-Lab/EUR_DATA"
   page-footer:
     left: |
-      ![Co-funded by the European Union](assets/eu-emblem.png){height=26px style="vertical-align:middle;margin-right:8px"} Co-funded by the European Union (Erasmus+ Jean Monnet, grant 101127178).
+      ![Co-funded by the European Union](assets/eu-cofunded-en.png){.eu-lockup} Erasmus+ Jean Monnet Module EUR_DATA (grant agreement 101127178).
     right: "Maintained by the [Connected Politics Lab](https://github.com/Connected-Politics-Lab)."
   navbar:
     left:

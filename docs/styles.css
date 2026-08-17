@@ -1,1 +1,31 @@
 /* Custom styles for EUR_DATA website */
+
+/* EU funding lockup in the page footer. Height 40px keeps the emblem itself at
+   roughly 1 cm on screen, the minimum size the EU visual identity rules set. */
+.eu-lockup {
+  height: 40px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+/* Bootstrap gives each footer cell an equal third of the width, which wraps the
+   funding statement onto a second line beside the lockup. Let the left cell size
+   to its content instead, at the breakpoint above which the footer is a row. */
+@media (min-width: 768px) {
+  .nav-footer-left {
+    flex: 1 1 auto;
+  }
+
+  .nav-footer-center {
+    flex: 0 1 auto;
+  }
+}
+
+/* Below that breakpoint the statement wraps raggedly beside the lockup, so
+   stack the lockup above the text instead. */
+@media (max-width: 767.98px) {
+  .eu-lockup {
+    display: block;
+    margin: 0 auto 0.5em;
+  }
+}
